@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/services.dart';
 
 class WebViewController {
@@ -8,9 +6,6 @@ class WebViewController {
   WebViewController(int viewId)
       : _channel = MethodChannel('com.jiocoders/jio_webview_$viewId');
 
-  // static WebViewController getController(int viewId) {
-  //   return WebViewController(_channel));
-  // }
   Future<void> reload() async => _channel.invokeMethod('reload');
 
   Future<bool> canGoBack() async =>

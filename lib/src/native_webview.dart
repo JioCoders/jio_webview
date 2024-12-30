@@ -14,7 +14,7 @@ class NativeWebView extends StatelessWidget {
   Widget build(BuildContext context) {
     final MethodChannel channel = sdk2009.getMethodChannel();
     final viewTypeValue = channel.name;
-    const webUrl = 'https://iocode.shop';
+    const webUrl = 'https://flutter.dev';
     if (defaultTargetPlatform == TargetPlatform.android) {
       return PlatformViewLink(
         viewType: viewTypeValue,

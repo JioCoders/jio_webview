@@ -16,8 +16,7 @@ class MethodChannelJioWebview extends JioWebviewPlatform {
 
   @override
   Future<String?> getPlatformInfo() async {
-    final version =
-        await methodChannel.invokeMethod<String>('getPlatformInfo');
+    final version = await methodChannel.invokeMethod<String>('getPlatformInfo');
     return version;
   }
 }

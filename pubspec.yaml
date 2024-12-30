@@ -1,5 +1,5 @@
 name: jio_webview
-description: "A new Flutter plugin project."
+description: "A Flutter plugin for both android and iOS which provides native webview."
 version: 0.0.1
 homepage: https://github.com/JioCoders/jio_webview.git
 

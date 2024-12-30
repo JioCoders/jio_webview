@@ -1,6 +1,6 @@
 # jio_webview
 
-A Flutter plugin for both android and iOS which provides native webview
+A Flutter plugin for both android and iOS which provides native webview.
 
 Published package url -
 ```
