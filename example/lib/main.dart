@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    const webUrl = 'https://iocode.shop/';
+    const webUrl = 'https://flutter.dev/';
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
