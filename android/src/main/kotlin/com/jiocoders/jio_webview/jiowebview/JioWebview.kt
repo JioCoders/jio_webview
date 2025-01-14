@@ -20,7 +20,7 @@ class JioWebview(
     private val methodChannel: MethodChannel
 ) : PlatformView, MethodChannel.MethodCallHandler {
     private val webView: WebView = WebView(context).apply {
-        webViewClient = JioWebViewClient()
+        webViewClient = JioWebViewClient(methodChannel)
         webChromeClient = WebChromeClient()
         settings.javaScriptEnabled = true
     }
@@ -126,7 +126,7 @@ class JioWebview(
     }
 
     // Custom WebViewClient for handling navigation events
-    private class CustomWebViewClient(private val methodChannel: MethodChannel) : WebViewClient() {
+    private class JioWebViewClient(private val methodChannel: MethodChannel) : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
             super.onPageStarted(view, url, favicon)
             methodChannel.invokeMethod("onPageStarted", mapOf("url" to (url ?: "")))
@@ -160,7 +160,6 @@ class JioWebview(
             return true
         }
     }
-}
     // JavaScript interface for communication
     private class WebAppInterface {
         @JavascriptInterface
