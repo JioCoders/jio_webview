@@ -7,6 +7,8 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import com.jiocoders.jio_webview.JioWebviewPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -18,7 +20,7 @@ class JioWebview(
     private val methodChannel: MethodChannel
 ) : PlatformView, MethodChannel.MethodCallHandler {
     private val webView: WebView = WebView(context).apply {
-        webViewClient = WebViewClient()
+        webViewClient = JioWebViewClient()
         webChromeClient = WebChromeClient()
         settings.javaScriptEnabled = true
     }
@@ -27,8 +29,8 @@ class JioWebview(
     init {
         // Load the initial URL if provided
         val initialUrl = creationParams?.get("initialUrl") as? String
-        if (!initialUrl.isNullOrEmpty()) {
-            webViewController.loadUrl(initialUrl)
+        initialUrl?.let {
+            webView.loadUrl(it)
         }
 
         // Set up MethodChannel to handle Flutter method calls
@@ -123,6 +125,42 @@ class JioWebview(
         }
     }
 
+    // Custom WebViewClient for handling navigation events
+    private class CustomWebViewClient(private val methodChannel: MethodChannel) : WebViewClient() {
+        override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            methodChannel.invokeMethod("onPageStarted", mapOf("url" to (url ?: "")))
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            methodChannel.invokeMethod("onPageFinished", mapOf("url" to (url ?: "")))
+        }
+
+        override fun onReceivedError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            error: WebResourceError?
+        ) {
+            super.onReceivedError(view, request, error)
+            methodChannel.invokeMethod(
+                "onHttpError",
+                mapOf("error" to (error?.description?.toString() ?: "Unknown error"))
+            )
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            val url = request?.url?.toString() ?: ""
+            methodChannel.invokeMethod("onNavigationRequest", mapOf("url" to url)) { result ->
+                if (result == "prevent") {
+                    return@invokeMethod
+                }
+                view?.loadUrl(url)
+            }
+            return true
+        }
+    }
+}
     // JavaScript interface for communication
     private class WebAppInterface {
         @JavascriptInterface
