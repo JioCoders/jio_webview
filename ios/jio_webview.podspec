@@ -1,6 +1,8 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
 # Run `pod lib lint jio_webview.podspec` to validate before publishing.
+# cocoapod - https://cocoapods.org/owners/95842
+# pod - https://cocoapods.org/pods/jio_webview
 #
 Pod::Spec.new do |s|
   s.name             = 'jio_webview'
