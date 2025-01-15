@@ -159,36 +159,36 @@ private class JioWebViewClient(private val methodChannel: MethodChannel) : WebVi
         )
     }
 
-//    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-//        val url = request?.url?.toString() ?: ""
-//        // Invoke method on the Flutter side through method channel
-//        methodChannel.invokeMethod("onNavigationRequest", mapOf("url" to url), object : MethodChannel.Result {
-//            // Check the result from Flutter side
-//            override fun success(result: Any?) {
-//                // If result is "prevent", do not load the URL. Otherwise, load the URL in the WebView
-//                if (result == "prevent") {
-//                    // Stop loading the URL
-//                    // return@invokeMethod
-//                    return
-//                }
-//                // Allow loading the URL
-//                view?.loadUrl(url)
-//            }
-//            override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
-//                // Handle error if needed
-//                // For now, just log the error
-//                Log.e("WebViewClient", "Error handling navigation request: $errorMessage")
-//                println("Error: $errorCode, $errorMessage, $errorDetails")
-//            }
-//            override fun notImplemented() {
-//                // Handle method not implemented if needed
-//                // For now, just log the method not implemented
-//                Log.w("WebViewClient", "Navigation request method not implemented")
-//            }
-//        })
-//        // Return true to indicate that we are handling the URL loading
-//        return true
-//    }
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+        val url = request?.url?.toString() ?: ""
+        // Invoke method on the Flutter side through method channel
+        methodChannel.invokeMethod("onNavigationRequest", mapOf("url" to url), object : MethodChannel.Result {
+            // Check the result from Flutter side
+            override fun success(result: Any?) {
+                // If result is "prevent", do not load the URL. Otherwise, load the URL in the WebView
+                if (result == "prevent") {
+                    // Stop loading the URL
+                    // return@invokeMethod
+                    return
+                }
+                // Allow loading the URL
+                view?.loadUrl(url)
+            }
+            override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+                // Handle error if needed
+                // For now, just log the error
+                Log.e("WebViewClient", "Error handling navigation request: $errorMessage")
+                println("Error: $errorCode, $errorMessage, $errorDetails")
+            }
+            override fun notImplemented() {
+                // Handle method not implemented if needed
+                // For now, just log the method not implemented
+                Log.w("WebViewClient", "Navigation request method not implemented")
+            }
+        })
+        // Return true to indicate that we are handling the URL loading
+        return true
+    }
 
         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
             val url = request?.url?.toString() ?: ""

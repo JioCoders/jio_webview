@@ -18,6 +18,8 @@ let package = Package(
             resources: [
                 .process("PrivacyInfo.xcprivacy"),
             ],
-            path: "path/to/source")
+//            path: "path/to/source")
+            path: "ios/Classes",
+            publicHeadersPath: "" // Specify if there are public headers
     ]
 )
