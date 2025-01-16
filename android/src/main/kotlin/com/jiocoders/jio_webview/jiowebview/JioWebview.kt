@@ -147,11 +147,7 @@ private class JioWebViewClient(private val methodChannel: MethodChannel) : WebVi
         methodChannel.invokeMethod("onPageFinished", mapOf("url" to (url ?: "")))
     }
 
-    override fun onReceivedError(
-        view: WebView?,
-        request: WebResourceRequest?,
-        error: WebResourceError?
-    ) {
+    override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         super.onReceivedError(view, request, error)
         methodChannel.invokeMethod(
             "onHttpError",
@@ -190,14 +186,14 @@ private class JioWebViewClient(private val methodChannel: MethodChannel) : WebVi
 //        return true
 //    }
 
-        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-            val url = request?.url?.toString() ?: ""
-            methodChannel.invokeMethod("onNavigationRequest", mapOf("url" to url)) { result: MethodChannel.Result? ->
-                if (result == "prevent") {
-                    return@invokeMethod
-                }
-                view?.loadUrl(url)
-            }
-            return true
-        }
+//    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+//        val url = request?.url?.toString() ?: ""
+//        methodChannel.invokeMethod("onNavigationRequest", mapOf("url" to url)) { result: MethodChannel.Result? ->
+//            if (result == "prevent") {
+//                return@invokeMethod
+//            }
+//            view?.loadUrl(url)
+//        }
+//        return true
+//    }
 }
