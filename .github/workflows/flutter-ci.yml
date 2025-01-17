@@ -7,6 +7,8 @@ name: Flutter-CI
 
 on:
   push:
+#    tags:
+#      - 'v*' # Trigger on version tags like v1.0.0
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
@@ -17,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Check out the repository
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -26,6 +29,7 @@ jobs:
       # - uses: dart-lang/setup-dart@v1
 
       #      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+      # Set up Dart and Flutter
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         id: flutter-action
@@ -55,7 +59,7 @@ jobs:
         run: |
           flutter --version
           flutter doctor
-
+      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
@@ -64,6 +68,7 @@ jobs:
       #   run: dart format --output=none --set-exit-if-changed .
 
       # Consider passing '--fatal-infos' for slightly stricter analysis.
+      # Verify the package (optional but recommended)
       - name: Analyze project source
         run: flutter analyze
       # run: flutter analyze --no-fatal-infos --no-fatal-warnings
@@ -103,3 +108,11 @@ jobs:
 #        run: |
 #          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
 #          echo "VERSION=$new_version" >> $GITHUB_ENV
+
+
+      # Publish the package
+      - name: Publish to pub.dev
+#        run: flutter pub publish --force
+        run: flutter pub publish
+        env:
+          PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}

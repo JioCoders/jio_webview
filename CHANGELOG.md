@@ -5,3 +5,7 @@
 ## [0.1.0] - 16 January 2025
 
 * JioWebView client with controller.
+
+## [0.1.1] - 17 January 2025
+
+* JioWebView android test with CI.
