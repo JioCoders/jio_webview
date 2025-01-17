@@ -79,6 +79,11 @@ jobs:
       - name: Run tests
         run: flutter test
 
+#      - name: Configure pub.dev token
+#        env:
+#          PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
+#        run: echo "$PUB_DEV_TOKEN" > ~/.pub-cache/credentials.json
+
       - name: Format code
         run: dart format --fix .
       - name: Check Publish Warnings
@@ -114,4 +119,4 @@ jobs:
       - name: Publish to pub.dev
         env:
           PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
-        run: echo "$PUB_DEV_CREDENTIALS" > ~/.pub-cache/credentials.json && dart pub publish --force
+        run: echo "$PUB_DEV_TOKEN" > ~/.pub-cache/credentials.json && dart pub publish --force
