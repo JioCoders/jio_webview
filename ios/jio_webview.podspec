@@ -7,15 +7,17 @@
 Pod::Spec.new do |s|
   s.name             = 'jio_webview'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'Flutter plugin project for webview using platform view.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+Flutter plugin to display the native webView using native bridge method channel and platform view and allow controller to interact with webview and play with javascript.
                        DESC
-  s.homepage         = 'http://example.com'
-  s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
-  s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.homepage         = 'https://github.com/jiocoders/jio_webview/'
+  s.license          = { :type => 'MIT', :file => '../LICENSE' }
+  s.author           = { 'Jiocoders' => 'jiocoders@gmail.com' }
+#   s.source           = { :path => '.' }
+  s.source           = { :git => 'https://github.com/jiocoders/jio_webview.git', :tag => s.version.to_s }
+#   s.source_files = 'Classes/**/*'
+  s.source_files  = 'lib/**/*.{dart}'
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
 

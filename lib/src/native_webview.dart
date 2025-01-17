@@ -12,7 +12,9 @@ class NativeWebView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MethodChannel channel = sdk2009.getMethodChannel();
+    final jioWebView = JioWebview();
+
+    final MethodChannel channel = jioWebView.getMethodChannel();
     final viewTypeValue = channel.name;
     const webUrl = 'https://flutter.dev';
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -21,7 +23,6 @@ class NativeWebView extends StatelessWidget {
         onCreatePlatformView: (PlatformViewCreationParams params) {
           final controller = WebViewController(params.id);
           if (onControllerCreated != null) {
-            // onControllerCreated!(controller);
             onControllerCreated?.call(controller);
           }
           return PlatformViewsService.initSurfaceAndroidView(
@@ -45,7 +46,7 @@ class NativeWebView extends StatelessWidget {
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
-        viewType: 'webview_platform_view',
+        viewType: 'com.jiocoders/jio_webview',
         onPlatformViewCreated: (int viewId) {
           final controller = WebViewController(viewId);
           onControllerCreated?.call(controller);
@@ -62,5 +63,3 @@ class NativeWebView extends StatelessWidget {
     }
   }
 }
-
-final sdk2009 = JioWebview();

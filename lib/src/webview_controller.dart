@@ -1,5 +1,8 @@
 import 'package:flutter/services.dart';
 
+typedef NavigationDelegateHandler = Future<NavigationDecision> Function(
+    NavigationRequest request);
+
 class WebViewController {
   final MethodChannel _channel;
 
@@ -40,4 +43,59 @@ class WebViewController {
 
   Future<String> runJavaScript(String script) async =>
       await _channel.invokeMethod('runJavaScript', {'script': script}) ?? '';
+
+  Future<void> setNavigationDelegate(NavigationDelegate delegate) async {
+    _channel.setMethodCallHandler((MethodCall call) async {
+      switch (call.method) {
+        case "onPageStarted":
+          delegate.onPageStarted?.call(call.arguments["url"]);
+          break;
+        case "onPageFinished":
+          delegate.onPageFinished?.call(call.arguments["url"]);
+          break;
+        case "onHttpError":
+          delegate.onHttpError
+              ?.call(HttpResponseError(call.arguments["error"]));
+          break;
+        case "onNavigationRequest":
+          final request = NavigationRequest(call.arguments["url"]);
+          final decision = await delegate.onNavigationRequest?.call(request);
+          return decision == NavigationDecision.prevent
+              ? "prevent"
+              : "navigate";
+        default:
+          return null;
+      }
+    });
+  }
+}
+
+class NavigationDelegate {
+  final void Function(int progress)? onProgress;
+  final void Function(String url)? onPageStarted;
+  final void Function(String url)? onPageFinished;
+  final void Function(HttpResponseError error)? onHttpError;
+  final NavigationDelegateHandler? onNavigationRequest;
+
+  NavigationDelegate({
+    this.onProgress,
+    this.onPageStarted,
+    this.onPageFinished,
+    this.onHttpError,
+    this.onNavigationRequest,
+  });
+}
+
+class NavigationRequest {
+  final String url;
+
+  NavigationRequest(this.url);
+}
+
+enum NavigationDecision { navigate, prevent }
+
+class HttpResponseError {
+  final String description;
+
+  HttpResponseError(this.description);
 }

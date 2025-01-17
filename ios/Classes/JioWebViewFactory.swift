@@ -16,7 +16,7 @@ public class JioWebviewFactory: NSObject, FlutterPlatformViewFactory {
 }
 
 // WebViewController - Handles WebView logic
-public class WebViewController: NSObject {
+public class WebViewController: NSObject, WKNavigationDelegate {
     private var webView: WKWebView
     private var methodChannel: FlutterMethodChannel
 
@@ -30,14 +30,45 @@ public class WebViewController: NSObject {
         methodChannel = FlutterMethodChannel(name: "com.jiocoders/jio_webview_\(viewId)", binaryMessenger: messenger)
         super.init()
 
-        // Set up the method channel to handle Flutter calls
+        // Assign self as the navigation delegate
+        webView.navigationDelegate = self
+
+        // Set up the method channel to handle method calls from Flutter
         methodChannel.setMethodCallHandler { [weak self] call, result in
             self?.handleMethodCall(call, result: result)
         }
     }
 
+    // WKNavigationDelegate Methods
+    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        methodChannel.invokeMethod("onPageStarted", arguments: ["url": webView.url?.absoluteString ?? ""])
+    }
+
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        methodChannel.invokeMethod("onPageFinished", arguments: ["url": webView.url?.absoluteString ?? ""])
+    }
+
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        methodChannel.invokeMethod("onHttpError", arguments: ["error": error.localizedDescription])
+    }
+
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        let url = navigationAction.request.url?.absoluteString ?? ""
+        methodChannel.invokeMethod("onNavigationRequest", arguments: ["url": url]) { result in
+            if let decision = result as? String, decision == "prevent" {
+                decisionHandler(.cancel)
+            } else {
+                decisionHandler(.allow)
+            }
+        }
+    }
+
+    // handle method calls
     private func handleMethodCall(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "setNavigationDelegate":
+            // This is automatically handled by the navigation delegate setup
+            result(nil)
         case "loadUrl":
             if let arguments = call.arguments as? [String: Any],
                let url = arguments["url"] as? String {
@@ -110,7 +141,7 @@ public class NativeWebview: NSObject, FlutterPlatformView {
         super.init()
 
         // Load default URL
-        webViewController.loadUrl(url: "https://flutter.dev", result: { _ in })
+        webViewController.loadUrl(url: "https://jiocoders.com", result: { _ in })
     }
 
     public func view() -> UIView {
