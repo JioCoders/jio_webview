@@ -104,7 +104,6 @@ jobs:
             echo "TAG_EXISTS=true" >> $GITHUB_ENV
           else
             echo "TAG_EXISTS=false" >> $GITHUB_ENV
-          fi
 
       # Modify Tag if it Exist
 #      - name: Modify Tag
@@ -113,7 +112,6 @@ jobs:
 #        run: |
 #          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
 #          echo "VERSION=$new_version" >> $GITHUB_ENV
-
 
       # Publish the package
       - name: Publish to pub.dev
