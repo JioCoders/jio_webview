@@ -82,7 +82,7 @@ jobs:
       - name: Configure pub.dev token
         env:
           PUB_DEV_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
-        run: echo "$PUB_DEV_CREDENTIALS" > ~/dart/credentials.json
+        run: echo "$PUB_DEV_CREDENTIALS" > ~/.pub-cache/credentials.json
 
 #      - name: Configure pub.dev credentials
 #        env:
