@@ -9,3 +9,7 @@
 ## [0.1.1] - 17 January 2025
 
 * JioWebView android test with CI.
+
+## [0.1.2] - 19 January 2025
+
+* JioWebView android `shouldOverrideUrlLoading` bug fixes.
