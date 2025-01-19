@@ -147,7 +147,11 @@ private class JioWebViewClient(private val methodChannel: MethodChannel) : WebVi
         methodChannel.invokeMethod("onPageFinished", mapOf("url" to (url ?: "")))
     }
 
-    override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+    override fun onReceivedError(
+        view: WebView?,
+        request: WebResourceRequest?,
+        error: WebResourceError?
+    ) {
         super.onReceivedError(view, request, error)
         methodChannel.invokeMethod(
             "onHttpError",
@@ -159,32 +163,40 @@ private class JioWebViewClient(private val methodChannel: MethodChannel) : WebVi
         val url = request?.url?.toString() ?: ""
         Log.d(JioWebviewPlugin.TAG_APP, "shouldOverrideUrlLoading.URL :: $url")
         // Invoke method on the Flutter side through method channel
-        methodChannel.invokeMethod("onNavigationRequest", mapOf("url" to url), object : MethodChannel.Result {
-            // Check the result from Flutter side
-            override fun success(result: Any?) {
-                // Handle the success response
-                // If result is "prevent", do not load the URL. Otherwise, load the URL in the WebView
-                Log.d(JioWebviewPlugin.TAG_APP, "shouldOverrideUrlLoading.result :: $result")
-                if (result == "prevent") {
-                    // Stop loading the URL
-                    // return@invokeMethod
-                    return
+        methodChannel.invokeMethod(
+            "onNavigationRequest",
+            mapOf("url" to url),
+            object : MethodChannel.Result {
+                // Check the result from Flutter side
+                override fun success(result: Any?) {
+                    // Handle the success response
+                    // If result is "prevent", do not load the URL. Otherwise, load the URL in the WebView
+                    Log.d(
+                        JioWebviewPlugin.TAG_APP,
+                        "shouldOverrideUrlLoading.result :: $result :: $url"
+                    )
+                    if (result == "prevent") {
+                        // Stop loading the URL
+                        // return@invokeMethod
+                        return
+                    }
+                    // Allow loading the URL
+                    view?.loadUrl(url)
                 }
-                // Allow loading the URL
-                view?.loadUrl(url)
-            }
-            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                // Handle error if needed
-                // For now, just log the error
-                Log.e("WebViewClient", "Error handling navigation request: $errorMessage")
-                println("Error: $errorCode, $errorMessage, $errorDetails")
-            }
-            override fun notImplemented() {
-                // Handle method not implemented if needed
-                // For now, just log the method not implemented
-                Log.w("WebViewClient", "Navigation request method not implemented")
-            }
-        })
+
+                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                    // Handle error if needed
+                    // For now, just log the error
+                    Log.e("WebViewClient", "Error handling navigation request: $errorMessage")
+                    println("Error: $errorCode, $errorMessage, $errorDetails")
+                }
+
+                override fun notImplemented() {
+                    // Handle method not implemented if needed
+                    // For now, just log the method not implemented
+                    Log.w("WebViewClient", "Navigation request method not implemented")
+                }
+            })
         // Return true to indicate that we are handling the URL loading
         return true
     }

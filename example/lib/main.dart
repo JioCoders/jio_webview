@@ -21,15 +21,15 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    const webUrl = 'https://flutter.dev/';
+    const webUrl = 'https://youtube.com/';
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('WebView example app'),
-        ),
-        body: JioWebView(
+        appBar: AppBar(title: const Text('WebView example app')),
+        body: NativeWebView(
           onControllerCreated: (controller) async {
-            await controller.loadUrl(webUrl);
+            final oldUserAgent = await controller.getUserAgent();
+            final newUserAgent = '$oldUserAgent CustomAgent';
+            controller.setUserAgent(newUserAgent);
             controller.setNavigationDelegate(
               NavigationDelegate(
                 onPageStarted: (url) =>
@@ -46,6 +46,8 @@ class _MyAppState extends State<MyApp> {
                 },
               ),
             );
+
+            await controller.loadUrl(webUrl);
           },
         ),
       ),
