@@ -27,8 +27,9 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('WebView example app'),
         ),
-        body: NativeWebView(
+        body: JioWebView(
           onControllerCreated: (controller) async {
+            await controller.loadUrl(webUrl);
             controller.setNavigationDelegate(
               NavigationDelegate(
                 onPageStarted: (url) =>
@@ -45,7 +46,6 @@ class _MyAppState extends State<MyApp> {
                 },
               ),
             );
-            await controller.loadUrl(webUrl);
           },
         ),
       ),
