@@ -18,6 +18,7 @@ public class JioWebviewFactory: NSObject, FlutterPlatformViewFactory {
 // WebViewController - Handles WebView logic
 public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
     private var webView: WKWebView
+    var popupWebView: WKWebView?
     private var methodChannel: FlutterMethodChannel
 
     init(webView: WKWebView, viewId: Int64, registrar: FlutterPluginRegistrar) {
@@ -69,18 +70,23 @@ public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
     // WKUIDelegate Methods (for handling popups)
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // Here we create a new WKWebView instance to handle the popup
-        let popupWebView = WKWebView(frame: webView.frame, configuration: configuration)
-        popupWebView.uiDelegate = self  // Set the UI delegate for the popup webview
+//        let popupWebView = WKWebView(frame: webView.frame, configuration: configuration)
+//        popupWebView.uiDelegate = self  // Set the UI delegate for the popup webview
+
+        let preferences = WKPreferences()
+        preferences.javaScriptEnabled = true
+        preferences.javaScriptCanOpenWindowsAutomatically = true
+
+        // You can add this new popupWebView to your view hierarchy here or manage it accordingly
+        popupWebView = WKWebView(frame: webView.bounds, configuration: configuration)
+        configuration.preferences = preferences
+        self.popupWebView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.popupWebView!.navigationDelegate = self
+        self.popupWebView!.uiDelegate = self
+        webView.addSubview(popupWebView!)
 
         // Notify Flutter that a popup has been created
         methodChannel.invokeMethod("onPopupWindowCreated", arguments: ["url": navigationAction.request.url?.absoluteString ?? ""])
-
-        // You can add this new popupWebView to your view hierarchy here or manage it accordingly
-//        self.popupWebView = WKWebView(frame: view.bounds, configuration: configuration)
-//        self.popupWebView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//        self.popupWebView!.navigationDelegate = self
-//        self.popupWebView!.uiDelegate = self
-//        view.addSubview(popupWebView!)
 
         // Return the newly created WebView for the popup
         return popupWebView
@@ -88,7 +94,7 @@ public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
 
     public func webViewDidClose(_ webView: WKWebView) {
        webView.removeFromSuperview()
-//        popupWebView = nil
+        popupWebView = nil
     }
 
     // handle method calls
@@ -188,12 +194,22 @@ public class NativeWebview: NSObject, FlutterPlatformView {
     private var webViewController: WebViewController
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
-        let webView = WKWebView(frame: frame)
+        let preferences = WKPreferences()
+        preferences.javaScriptEnabled = true
+        preferences.javaScriptCanOpenWindowsAutomatically = true
+
+        let configuration = WKWebViewConfiguration()
+        configuration.preferences = preferences
+
+//        let webView = WKWebView(frame: frame) // Without configuration
+        let webView = WKWebView(frame: frame, configuration: configuration) // With configuration
+//        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
         self.webViewController = WebViewController(webView: webView, viewId: viewId, registrar: registrar)
         super.init()
 
         // Load default URL
-        webViewController.loadUrl(url: "https://jiocoders.com", result: { _ in })
+        webViewController.loadUrl(url: "https://pub.dev", result: { _ in })
     }
 
     public func view() -> UIView {
