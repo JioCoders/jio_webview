@@ -79,6 +79,7 @@ jobs:
       - name: Run tests
         run: flutter test
 
+
       - name: Configure pub.dev token
         env:
           PUB_DEV_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
