@@ -21,7 +21,7 @@ class JioWebview(
 ) : PlatformView, MethodChannel.MethodCallHandler {
     private val webView: WebView = WebView(context).apply {
         webViewClient = JioWebViewClient(methodChannel)
-        webChromeClient = WebChromeClient()
+        webChromeClient = JioWebChromeClient(methodChannel)
         settings.javaScriptEnabled = true
     }
     private val webViewController = WebViewController(webView)
@@ -132,6 +132,51 @@ class JioWebview(
             // Example: This can be expanded for custom JS-to-Native communication
             Log.d(JioWebviewPlugin.TAG_APP, "Message from JavaScript: $message")
         }
+    }
+}
+
+// Custom WebChromeClient to handle popups
+private class JioWebChromeClient(private val methodChannel: MethodChannel) : WebChromeClient() {
+    override fun onCreateWindow(
+        view: WebView?,
+        isDialog: Boolean,
+        isUserGesture: Boolean,
+        resultMsg: android.os.Message?
+    ): Boolean {
+
+        if (view?.context == null) {
+            // Handle the case where context is null
+            return false
+        }
+
+        // Handle popup creation
+        val newWebView = WebView(requireNotNull(view?.context) { "Context is null" }).apply {
+            settings.javaScriptEnabled = true // Enable JavaScript for the new popup
+            webChromeClient = this@JioWebChromeClient // Set WebChromeClient to handle popups
+            webViewClient = JioWebViewClient(methodChannel)
+        }
+//        newWebView.settings.javaScriptEnabled = true // Enable JavaScript for the new popup
+
+        (resultMsg as? WebView.WebViewTransport)?.webView = newWebView
+        resultMsg?.sendToTarget()
+
+        // Set up a new frame layout to hold the popup
+//        val frameLayout = FrameLayout(view?.context)
+//        frameLayout.addView(newWebView)
+
+        // You can add the new frameLayout to your view hierarchy here or use it in a dialog, etc.
+
+        // Set the result for the popup
+        (resultMsg?.obj as? WebView)?.apply {
+//            this.webViewClient = view?.webViewClient
+            this.webChromeClient = view?.webChromeClient
+        }
+
+        // Notify Flutter about the popup window
+//        methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to view?.url ?: ""))
+        methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to "about:blank"))
+
+        return true // Return true to indicate we handled the window creation
     }
 }
 

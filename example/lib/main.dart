@@ -21,15 +21,15 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    const webUrl = 'https://google.com/';
+    // const webUrl = 'https://google.com/';
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('WebView example app')),
         body: NativeWebView(
           onControllerCreated: (controller) async {
-            final oldUserAgent = await controller.getUserAgent();
-            final newUserAgent = '$oldUserAgent CustomAgent';
-            controller.setUserAgent(newUserAgent);
+            // final oldUserAgent = await controller.getUserAgent();
+            // final newUserAgent = '$oldUserAgent CustomAgent';
+            // controller.setUserAgent(newUserAgent);
             controller.setNavigationDelegate(
               NavigationDelegate(
                 onPageStarted: (url) =>
@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
               ),
             );
 
-            await controller.loadUrl(webUrl);
+            // await controller.loadUrl(webUrl);
           },
         ),
       ),
