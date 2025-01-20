@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    const webUrl = 'https://youtube.com/';
+    const webUrl = 'https://google.com/';
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('WebView example app')),

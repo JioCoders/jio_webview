@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/services.dart';
 
 typedef NavigationDelegateHandler = Future<NavigationDecision> Function(
@@ -43,6 +45,19 @@ class WebViewController {
 
   Future<String> runJavaScript(String script) async =>
       await _channel.invokeMethod('runJavaScript', {'script': script}) ?? '';
+
+  void registerPopupWindowListener() {
+    // Flutter side: listening for popup creation events
+    _channel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case "onPopupWindowCreated":
+          String url = call.arguments['url'];
+          log("Popup window created with URL: $url");
+          break;
+        // Handle other cases as needed
+      }
+    });
+  }
 
   Future<void> setNavigationDelegate(NavigationDelegate delegate) async {
     _channel.setMethodCallHandler((MethodCall call) async {

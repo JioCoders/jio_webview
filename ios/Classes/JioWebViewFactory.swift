@@ -16,7 +16,7 @@ public class JioWebviewFactory: NSObject, FlutterPlatformViewFactory {
 }
 
 // WebViewController - Handles WebView logic
-public class WebViewController: NSObject, WKNavigationDelegate {
+public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
     private var webView: WKWebView
     private var methodChannel: FlutterMethodChannel
 
@@ -32,6 +32,8 @@ public class WebViewController: NSObject, WKNavigationDelegate {
 
         // Assign self as the navigation delegate
         webView.navigationDelegate = self
+
+        webView.uiDelegate = self
 
         // Set up the method channel to handle method calls from Flutter
         methodChannel.setMethodCallHandler { [weak self] call, result in
@@ -54,6 +56,7 @@ public class WebViewController: NSObject, WKNavigationDelegate {
 
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url?.absoluteString ?? ""
+        print("decidePolicyFor:: \(url)")
         methodChannel.invokeMethod("onNavigationRequest", arguments: ["url": url]) { result in
             if let decision = result as? String, decision == "prevent" {
                 decisionHandler(.cancel)
@@ -61,6 +64,31 @@ public class WebViewController: NSObject, WKNavigationDelegate {
                 decisionHandler(.allow)
             }
         }
+    }
+
+    // WKUIDelegate Methods (for handling popups)
+    public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        // Here we create a new WKWebView instance to handle the popup
+        let popupWebView = WKWebView(frame: webView.frame, configuration: configuration)
+        popupWebView.uiDelegate = self  // Set the UI delegate for the popup webview
+
+        // Notify Flutter that a popup has been created
+        methodChannel.invokeMethod("onPopupWindowCreated", arguments: ["url": navigationAction.request.url?.absoluteString ?? ""])
+
+        // You can add this new popupWebView to your view hierarchy here or manage it accordingly
+//        self.popupWebView = WKWebView(frame: view.bounds, configuration: configuration)
+//        self.popupWebView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        self.popupWebView!.navigationDelegate = self
+//        self.popupWebView!.uiDelegate = self
+//        view.addSubview(popupWebView!)
+
+        // Return the newly created WebView for the popup
+        return popupWebView
+    }
+
+    public func webViewDidClose(_ webView: WKWebView) {
+       webView.removeFromSuperview()
+//        popupWebView = nil
     }
 
     // handle method calls
@@ -84,6 +112,15 @@ public class WebViewController: NSObject, WKNavigationDelegate {
             reload(result: result)
         case "getCurrentUrl":
             getCurrentUrl(result: result)
+        case "setUserAgent":
+            if let arguments = call.arguments as? [String: Any],
+               let userAgent = arguments["userAgent"] as? String {
+                setUserAgent(userAgent, result: result)
+            } else {
+                result(FlutterError(code: "INVALID_ARGUMENTS", message: "UserAgent not provided", details: nil))
+            }
+        case "getUserAgent":
+            getUserAgent(result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -124,6 +161,21 @@ public class WebViewController: NSObject, WKNavigationDelegate {
 
     private func getCurrentUrl(result: @escaping FlutterResult) {
         result(webView.url?.absoluteString)
+    }
+
+    // Set a custom user agent string
+    private func setUserAgent(_ userAgent: String, result: @escaping FlutterResult) {
+        webView.customUserAgent = userAgent
+        result(nil)
+    }
+
+    // Get the current user agent string
+    private func getUserAgent(result: @escaping FlutterResult) {
+        if let userAgent = webView.value(forKey: "userAgent") as? String {
+            result(userAgent)
+        } else {
+            result(FlutterError(code: "USER_AGENT_ERROR", message: "Unable to fetch UserAgent", details: nil))
+        }
     }
 
     func getWebView() -> WKWebView {
