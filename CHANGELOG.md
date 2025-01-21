@@ -13,3 +13,7 @@
 ## [0.1.2] - 19 January 2025
 
 * JioWebView android `shouldOverrideUrlLoading` bug fixes.
+
+## [0.1.3] - 21 January 2025
+
+* JioWebView android `webChromeClient` & `webViewClient` bug fixes.

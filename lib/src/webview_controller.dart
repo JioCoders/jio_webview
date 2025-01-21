@@ -18,7 +18,8 @@ class WebViewController {
 
   Future<void> goBack() async => _channel.invokeMethod('goBack');
 
-  Future<String> getCurrentUrl() async => await _channel.invokeMethod('getCurrentUrl') ?? '';
+  Future<String> getCurrentUrl() async =>
+      await _channel.invokeMethod('getCurrentUrl') ?? '';
 
   Future<void> loadUrl(String url) async {
     _channel.invokeMethod('loadUrl', {'url': url});
