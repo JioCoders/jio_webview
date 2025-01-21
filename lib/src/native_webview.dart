@@ -47,7 +47,7 @@ class NativeWebView extends StatelessWidget {
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
-        viewType: 'com.jiocoders/jio_webview',
+        viewType: viewTypeValue,
         onPlatformViewCreated: (int viewId) {
           final controller = WebViewController(viewId);
           onControllerCreated?.call(controller);

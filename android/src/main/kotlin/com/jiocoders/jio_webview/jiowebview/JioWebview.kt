@@ -1,7 +1,6 @@
 package com.jiocoders.jio_webview.jiowebview
 
 import android.content.Context
-import android.src.main.kotlin.com.epay.sbi.webview.WebViewController
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
@@ -37,13 +36,20 @@ class JioWebview(
         methodChannel.setMethodCallHandler(this)
 
         // Add a JavaScript interface
-        webView.addJavascriptInterface(WebAppInterface(), "AndroidInterface")
+        webView.addJavascriptInterface(WebAppInterface(methodChannel), "AndroidInterface")
     }
 
     override fun getView(): WebView = webView
 
     override fun dispose() {
-        webView.destroy()
+        webView.apply {
+            stopLoading()
+            clearHistory()
+            clearCache(true)
+            removeAllViews()
+            destroy()
+        }
+        methodChannel.setMethodCallHandler(null)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -51,7 +57,7 @@ class JioWebview(
             "loadUrl" -> {
                 val url = call.argument<String>("url")
                 if (url != null) {
-                    Log.d(JioWebviewPlugin.TAG_APP, "URL :: $url")
+                    Log.d(JioWebviewPlugin.TAG_APP, "LOAD_URL :: $url")
                     webView.loadUrl(url)
                     result.success(null)
                 } else {
@@ -60,6 +66,7 @@ class JioWebview(
             }
 
             "reload" -> {
+                Log.d(JioWebviewPlugin.TAG_APP, "RELOAD_NATIVE :: ${webView.url}")
                 webViewController.reload()
                 result.success(null)
             }
@@ -67,6 +74,7 @@ class JioWebview(
             "getCurrentUrl" -> result.success(webViewController.getCurrentUrl())
             "canGoBack" -> result.success(webView.canGoBack())
             "goBack" -> {
+                Log.d(JioWebviewPlugin.TAG_APP, "GOBACK_NATIVE :: ${webView.url}")
                 if (webViewController.canGoBack()) {
                     webViewController.goBack()
                     result.success(true)
@@ -85,10 +93,14 @@ class JioWebview(
             }
 
             "loadHtmlAsset" -> {
-                val assetPath = call.argument<String>("assetPath") ?: ""
-//                val htmlContent = context!!.assets.open(assetPath).bufferedReader().use { it.readText() }
-//                webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-                result.success(null)
+                val assetPath = call.argument<String>("assetPath") ?: return result.error("INVALID_ASSET", "Asset path is null", null)
+//                try {
+//                    val htmlContent = context.assets.open(assetPath).bufferedReader().use { it.readText() }
+//                    webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+                    result.success(null)
+//                } catch (e: Exception) {
+//                    result.error("ASSET_LOAD_ERROR", "Failed to load asset", e.localizedMessage)
+//                }
             }
 
             "loadHtmlString" -> {
@@ -126,11 +138,12 @@ class JioWebview(
     }
 
     // JavaScript interface for communication
-    private class WebAppInterface {
+    private class WebAppInterface(private val methodChannel: MethodChannel) {
         @JavascriptInterface
         fun showToast(message: String) {
             // Example: This can be expanded for custom JS-to-Native communication
             Log.d(JioWebviewPlugin.TAG_APP, "Message from JavaScript: $message")
+            methodChannel.invokeMethod("onJsMessage", mapOf("message" to message))
         }
     }
 }
@@ -143,40 +156,29 @@ private class JioWebChromeClient(private val methodChannel: MethodChannel) : Web
         isUserGesture: Boolean,
         resultMsg: android.os.Message?
     ): Boolean {
-
         if (view?.context == null) {
             // Handle the case where context is null
             return false
         }
-
         // Handle popup creation
-        val newWebView = WebView(requireNotNull(view?.context) { "Context is null" }).apply {
-            settings.javaScriptEnabled = true // Enable JavaScript for the new popup
-            webChromeClient = this@JioWebChromeClient // Set WebChromeClient to handle popups
-            webViewClient = JioWebViewClient(methodChannel)
-        }
-//        newWebView.settings.javaScriptEnabled = true // Enable JavaScript for the new popup
-
-        (resultMsg as? WebView.WebViewTransport)?.webView = newWebView
-        resultMsg?.sendToTarget()
-
-        // Set up a new frame layout to hold the popup
-//        val frameLayout = FrameLayout(view?.context)
-//        frameLayout.addView(newWebView)
-
-        // You can add the new frameLayout to your view hierarchy here or use it in a dialog, etc.
-
-        // Set the result for the popup
-        (resultMsg?.obj as? WebView)?.apply {
-//            this.webViewClient = view?.webViewClient
-            this.webChromeClient = view?.webChromeClient
-        }
-
-        // Notify Flutter about the popup window
+        view?.context?.let { ctx ->
+            val newWebView = WebView(ctx).apply {
+                settings.javaScriptEnabled = true
+                webChromeClient = this@JioWebChromeClient
+                webViewClient = JioWebViewClient(methodChannel)
+            }
+            // Set up a new frame layout to hold the popup
+            // val frameLayout = FrameLayout(view?.context)
+            // frameLayout.addView(newWebView)
+            // You can add the new frameLayout to your view hierarchy here or use it in a dialog, etc.
+            (resultMsg as? WebView.WebViewTransport)?.webView = newWebView
+            resultMsg?.sendToTarget()
+            // Notify Flutter about the popup window
 //        methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to view?.url ?: ""))
-        methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to "about:blank"))
-
-        return true // Return true to indicate we handled the window creation
+            methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to "about:blank"))
+            return true
+        } ?: return false
+    // Return true/false to indicate we handled the window creation
     }
 }
 
