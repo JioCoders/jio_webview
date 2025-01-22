@@ -14,6 +14,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool isLoading = false;
+  static const String webUrl = 'https://pub.dev/';
   late final WebViewController _webViewController;
 
   @override
@@ -22,14 +24,23 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> setupController() async {
-    // const webUrl = 'https://pub.dev/';
     // final oldUserAgent = await _webViewController.getUserAgent();
     // final newUserAgent = '$oldUserAgent CustomAgent';
     // _webViewController.setUserAgent(newUserAgent);
     _webViewController.setNavigationDelegate(
       NavigationDelegate(
-        onPageStarted: (url) => developer.log("Page started loading: $url"),
-        onPageFinished: (url) => developer.log("Page finished loading: $url"),
+        onPageStarted: (url) {
+          developer.log("Page started loading: $url");
+          setState(() {
+            isLoading = true;
+          });
+        },
+        onPageFinished: (url) {
+          developer.log("Page finished loading: $url");
+          setState(() {
+            isLoading = false;
+          });
+        },
         onHttpError: (error) =>
             developer.log("HTTP error: ${error.description}"),
         onNavigationRequest: (request) async {
@@ -72,11 +83,19 @@ class _MyAppState extends State<MyApp> {
             ),
           ],
         ),
-        body: NativeWebView(
-          onControllerCreated: (wc) {
-            _webViewController = wc;
-            setupController();
-          },
+        body: Stack(
+          children: [
+            NativeWebView(
+              webUrl: webUrl,
+              onControllerCreated: (wc) {
+                _webViewController = wc;
+                setupController();
+              },
+            ),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : const SizedBox()
+          ],
         ),
       ),
     );

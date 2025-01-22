@@ -6,8 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:jio_webview/jio_webview.dart';
 
 class NativeWebView extends StatelessWidget {
-  const NativeWebView({super.key, required this.onControllerCreated});
+  const NativeWebView({super.key, required this.onControllerCreated, required this.webUrl});
 
+  final String webUrl;
   final void Function(WebViewController controller)? onControllerCreated;
 
   @override
@@ -16,7 +17,6 @@ class NativeWebView extends StatelessWidget {
 
     final MethodChannel channel = jioWebView.getMethodChannel();
     final viewTypeValue = channel.name;
-    const webUrl = 'https://google.com/';
 
     if (defaultTargetPlatform == TargetPlatform.android) {
       return PlatformViewLink(
@@ -28,7 +28,7 @@ class NativeWebView extends StatelessWidget {
           }
           return PlatformViewsService.initSurfaceAndroidView(
             id: params.id,
-            creationParams: const {'initialUrl': webUrl},
+            creationParams: {'initialUrl': webUrl},
             viewType: viewTypeValue,
             layoutDirection: TextDirection.ltr,
             creationParamsCodec: const StandardMessageCodec(),
