@@ -93,11 +93,15 @@ class JioWebview(
             }
 
             "loadHtmlAsset" -> {
-                val assetPath = call.argument<String>("assetPath") ?: return result.error("INVALID_ASSET", "Asset path is null", null)
+                val assetPath = call.argument<String>("assetPath") ?: return result.error(
+                    "INVALID_ASSET",
+                    "Asset path is null",
+                    null
+                )
 //                try {
 //                    val htmlContent = context.assets.open(assetPath).bufferedReader().use { it.readText() }
 //                    webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-                    result.success(null)
+                result.success(null)
 //                } catch (e: Exception) {
 //                    result.error("ASSET_LOAD_ERROR", "Failed to load asset", e.localizedMessage)
 //                }
@@ -156,29 +160,37 @@ private class JioWebChromeClient(private val methodChannel: MethodChannel) : Web
         isUserGesture: Boolean,
         resultMsg: android.os.Message?
     ): Boolean {
-        if (view?.context == null) {
-            // Handle the case where context is null
-            return false
-        }
+
+        val context = view?.context ?: return false // Ensure context is available
+
         // Handle popup creation
-        view?.context?.let { ctx ->
-            val newWebView = WebView(ctx).apply {
+        try {
+            val newWebView = WebView(context).apply {
                 settings.javaScriptEnabled = true
                 webChromeClient = this@JioWebChromeClient
                 webViewClient = JioWebViewClient(methodChannel)
             }
+
             // Set up a new frame layout to hold the popup
             // val frameLayout = FrameLayout(view?.context)
             // frameLayout.addView(newWebView)
             // You can add the new frameLayout to your view hierarchy here or use it in a dialog, etc.
-            (resultMsg as? WebView.WebViewTransport)?.webView = newWebView
+            (resultMsg?.obj as? WebView.WebViewTransport)?.webView = newWebView
             resultMsg?.sendToTarget()
+
             // Notify Flutter about the popup window
-//        methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to view?.url ?: ""))
-            methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to "about:blank"))
+            // methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to view?.url ?: ""))
+            methodChannel.invokeMethod(
+                "onPopupWindowCreated",
+                mapOf("url" to (view?.url ?: "about:blank"))
+            )
+
             return true
-        } ?: return false
-    // Return true/false to indicate we handled the window creation
+        } catch (e: Exception) {
+            Log.e("JioWebChromeClient", "Error handling popup: ${e.message}")
+            return false
+        }
+        // Return true/false to indicate we handled the window creation
     }
 }
 

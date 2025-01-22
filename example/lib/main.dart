@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> setupController() async {
-    const webUrl = 'https://pub.dev/';
+    // const webUrl = 'https://pub.dev/';
     // final oldUserAgent = await _webViewController.getUserAgent();
     // final newUserAgent = '$oldUserAgent CustomAgent';
     // _webViewController.setUserAgent(newUserAgent);
@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
         },
       ),
     );
-    Future.delayed(Duration.zero, () => _webViewController.loadUrl(webUrl));
+    // Future.delayed(Duration.zero, () => _webViewController.loadUrl(webUrl));
   }
 
   @override
