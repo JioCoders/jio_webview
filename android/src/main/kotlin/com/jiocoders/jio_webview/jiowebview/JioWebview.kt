@@ -22,6 +22,7 @@ class JioWebview(
         webViewClient = JioWebViewClient(methodChannel)
         webChromeClient = JioWebChromeClient(methodChannel)
         settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
     }
     private val webViewController = WebViewController(webView)
 
@@ -163,18 +164,19 @@ private class JioWebChromeClient(private val methodChannel: MethodChannel) : Web
 
         val context = view?.context ?: return false // Ensure context is available
 
-        // Handle popup creation
+        // Handle pop-up window creation
         try {
             val newWebView = WebView(context).apply {
                 settings.javaScriptEnabled = true
                 webChromeClient = this@JioWebChromeClient
-                webViewClient = JioWebViewClient(methodChannel)
+                webViewClient = JioWebViewClient(methodChannel) // handle loading of URLs in
             }
 
             // Set up a new frame layout to hold the popup
             // val frameLayout = FrameLayout(view?.context)
             // frameLayout.addView(newWebView)
             // You can add the new frameLayout to your view hierarchy here or use it in a dialog, etc.
+            // Send back the WebView instance for pop-up handling 
             (resultMsg?.obj as? WebView.WebViewTransport)?.webView = newWebView
             resultMsg?.sendToTarget()
 
