@@ -17,3 +17,7 @@
 ## [0.1.3] - 21 January 2025
 
 * JioWebView android `webChromeClient` & `webViewClient` bug fixes.
+
+## [0.1.4] - 23 January 2025
+
+* JioWebView android `webChromeClient` & `popupWindow` updates.
