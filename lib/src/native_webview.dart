@@ -6,7 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:jio_webview/jio_webview.dart';
 
 class NativeWebView extends StatelessWidget {
-  const NativeWebView({super.key, required this.onControllerCreated, required this.webUrl});
+  const NativeWebView(
+      {super.key, required this.onControllerCreated, required this.webUrl});
 
   final String webUrl;
   final void Function(WebViewController controller)? onControllerCreated;

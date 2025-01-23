@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool isLoading = false;
-  static const String webUrl = 'https://pub.dev/';
+  static const String webUrl = 'https://iocode.shop';
   late final WebViewController _webViewController;
 
   @override
@@ -51,6 +51,7 @@ class _MyAppState extends State<MyApp> {
         },
       ),
     );
+    _webViewController.registerPopupWindowListener();
     // Future.delayed(Duration.zero, () => _webViewController.loadUrl(webUrl));
   }
 
@@ -76,9 +77,30 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             IconButton(
+              icon: const Icon(Icons.run_circle),
+              onPressed: () async {
+                // _webViewController
+                //     .evaluateJavascript("alert('Hello from WebView')");
+                // _webViewController
+                //     .evaluateJavascript("console.log('Console message test')");
+                // _webViewController.evaluateJavascript(
+                //     "window.open('https://www.google.com');");
+                _webViewController.evaluateJavascript("""
+                    var newWin = window.open('https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_win_open');
+                    if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') { 
+                        console.log('Pop-up blocked'); 
+                    } else {
+                        console.log('Pop-up opened successfully!'); 
+                    }
+                  """);
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.home),
               onPressed: () async {
-                await _webViewController.loadUrl('https://pub.dev/');
+                const homeUrl =
+                    'https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_win_open';
+                await _webViewController.loadUrl(homeUrl);
               },
             ),
           ],

@@ -6,8 +6,12 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebChromeClient
+import android.webkit.ConsoleMessage
+import android.webkit.JsPromptResult
+import android.webkit.JsResult
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import com.jiocoders.jio_webview.JioWebviewPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -21,8 +25,12 @@ class JioWebview(
     private val webView: WebView = WebView(context).apply {
         webViewClient = JioWebViewClient(methodChannel)
         webChromeClient = JioWebChromeClient(methodChannel)
-        settings.javaScriptEnabled = true
-        settings.domStorageEnabled = true
+        settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            settings.cacheMode = WebSettings.LOAD_NO_CACHE
+            javaScriptCanOpenWindowsAutomatically = true  // Important for pop-ups
+        }
     }
     private val webViewController = WebViewController(webView)
 
@@ -155,44 +163,132 @@ class JioWebview(
 
 // Custom WebChromeClient to handle popups
 private class JioWebChromeClient(private val methodChannel: MethodChannel) : WebChromeClient() {
+    // Handle JS pop-up window test using dummy html script
     override fun onCreateWindow(
         view: WebView?,
         isDialog: Boolean,
         isUserGesture: Boolean,
         resultMsg: android.os.Message?
     ): Boolean {
-
+        Log.d("WebChromeClient", "JS Alert: onCreateWindow prompt")
         val context = view?.context ?: return false // Ensure context is available
 
         // Handle pop-up window creation
         try {
             val newWebView = WebView(context).apply {
                 settings.javaScriptEnabled = true
+                settings.domStorageEnabled = false
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                settings.javaScriptCanOpenWindowsAutomatically = false // for popups
+                settings.setSupportMultipleWindows(true)  // Allow multiple windows (required for pop-ups)
                 webChromeClient = this@JioWebChromeClient
-                webViewClient = JioWebViewClient(methodChannel) // handle loading of URLs in
+                webViewClient = WebViewClient() // handle loading of URLs in
             }
 
             // Set up a new frame layout to hold the popup
             // val frameLayout = FrameLayout(view?.context)
             // frameLayout.addView(newWebView)
             // You can add the new frameLayout to your view hierarchy here or use it in a dialog, etc.
-            // Send back the WebView instance for pop-up handling 
-            (resultMsg?.obj as? WebView.WebViewTransport)?.webView = newWebView
+            // Send back the WebView instance for pop-up handling
+            val transport = resultMsg?.obj as? WebView.WebViewTransport
+            transport?.webView = newWebView
             resultMsg?.sendToTarget()
 
-            // Notify Flutter about the popup window
+            // Notify Flutter about the pop-up window creation event
             // methodChannel.invokeMethod("onPopupWindowCreated", mapOf("url" to view?.url ?: ""))
             methodChannel.invokeMethod(
                 "onPopupWindowCreated",
-                mapOf("url" to (view?.url ?: "about:blank"))
+                mapOf("url" to (view.url ?: "about:blank"))
             )
-
+            // Indicate we handled the pop-up
             return true
         } catch (e: Exception) {
             Log.e("JioWebChromeClient", "Error handling popup: ${e.message}")
             return false
         }
         // Return true/false to indicate we handled the window creation
+    } // Close onCreateWindow
+
+    // Handle JavaScript alerts
+    override fun onJsAlert(
+        view: WebView?,
+        url: String?,
+        message: String?,
+        result: JsResult?
+    ): Boolean {
+        Log.d("WebChromeClient", "JS Alert KT: $message")
+        methodChannel.invokeMethod("onJsAlert", mapOf("url" to url, "message" to message))
+        result?.confirm()
+        return true  // Indicate that the alert is handled
+    }
+
+    // Handle JavaScript confirm dialogs
+    override fun onJsConfirm(
+        view: WebView?,
+        url: String?,
+        message: String?,
+        result: JsResult?
+    ): Boolean {
+        Log.d("WebChromeClient", "JS Confirm: $message")
+        methodChannel.invokeMethod("onJsConfirm", mapOf("url" to url, "message" to message))
+        result?.confirm()
+        return true  // Indicate that the confirm is handled
+    }
+
+    // Handle JavaScript prompt dialogs
+    override fun onJsPrompt(
+        view: WebView?,
+        url: String?,
+        message: String?,
+        defaultValue: String?,
+        result: JsPromptResult?
+    ): Boolean {
+        Log.d("WebChromeClient", "JS Prompt: $message")
+        methodChannel.invokeMethod(
+            "onJsPrompt",
+            mapOf("url" to url, "message" to message, "defaultValue" to defaultValue)
+        )
+        result?.confirm(defaultValue)
+        return true  // Indicate that the prompt is handled
+    }
+
+    // Handle JavaScript console messages
+    override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+        consoleMessage?.let {
+            Log.d("WebChromeClient", "Console: ${it.message()}")
+            methodChannel.invokeMethod(
+                "onConsoleMessage",
+                mapOf(
+                    "message" to it.message(),
+                    "sourceId" to it.sourceId(),
+                    "lineNumber" to it.lineNumber()
+                )
+            )
+        }
+        return true
+    }
+
+    // Handle progress changes
+    override fun onProgressChanged(view: WebView?, newProgress: Int) {
+        Log.d("WebChromeClient", "Loading Progress: $newProgress")
+        methodChannel.invokeMethod("onProgressChanged", mapOf("progress" to newProgress))
+    }
+
+    // Handle custom view (for video fullscreen, etc.)
+    override fun onShowCustomView(view: android.view.View?, callback: CustomViewCallback?) {
+        super.onShowCustomView(view, callback)
+        methodChannel.invokeMethod("onShowCustomView", null)
+    }
+
+    override fun onHideCustomView() {
+        super.onHideCustomView()
+        methodChannel.invokeMethod("onHideCustomView", null)
+    }
+
+    override fun onCloseWindow(window: WebView?) {
+        super.onCloseWindow(window)
+        Log.d("WebChromeClient", "onCloseWindow: Pop-up closed")
+        methodChannel.invokeMethod("onPopupWindowClosed", null)
     }
 }
 

@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:developer' as developer;
 
 import 'package:flutter/services.dart';
 
@@ -49,15 +49,30 @@ class WebViewController {
   Future<String> runJavaScript(String script) async =>
       await _channel.invokeMethod('runJavaScript', {'script': script}) ?? '';
 
-  void registerPopupWindowListener() {
+  Future<void> registerPopupWindowListener() async {
     // Flutter side: listening for popup creation events
     _channel.setMethodCallHandler((call) async {
       switch (call.method) {
         case "onPopupWindowCreated":
           String url = call.arguments['url'];
-          log("Popup window created with URL: $url");
+          developer.log("Popup window created with URL: $url");
+          break;
+        case 'onPopupWindowClosed':
+          developer.log("Pop-up window closed");
+          break;
+        case 'onProgressChanged':
+          developer.log("Loading progress: ${call.arguments['progress']}%");
           break;
         // Handle other cases as needed
+        case 'onJsAlert':
+          developer.log("JS Alert: ${call.arguments['message']}");
+          break;
+        case 'onJsPrompt':
+          developer.log("JS Prompt: ${call.arguments['message']}");
+          break;
+        case 'onConsoleMessage':
+          developer.log("Console Log: ${call.arguments['message']}");
+          break;
       }
     });
   }

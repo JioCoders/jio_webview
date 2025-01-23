@@ -2,7 +2,9 @@
   package="com.jiocoders.jio_webview">
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <application>
+    <application
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true" >
         <meta-data
             android:name="io.flutter.embedding.android.AndroidViewIntegrationStyle"
             android:value="hybrid" />
