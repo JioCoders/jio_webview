@@ -22,9 +22,9 @@ class JioWebviewPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onAttachedToEngine(flutterBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterBinding.binaryMessenger, CHANNEL_NAME)
-        channel.setMethodCallHandler(this)
         val messenger = flutterBinding.binaryMessenger
+        channel = MethodChannel(messenger, CHANNEL_NAME)
+        channel.setMethodCallHandler(this)
 
         flutterBinding.platformViewRegistry.registerViewFactory(
             CHANNEL_NAME, WebViewFactory(messenger)

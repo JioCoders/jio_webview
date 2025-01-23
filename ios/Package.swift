@@ -21,5 +21,6 @@ let package = Package(
 //            path: "path/to/source")
             path: "ios/Classes",
             publicHeadersPath: "" // Specify if there are public headers
+        )
     ]
 )

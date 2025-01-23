@@ -1,6 +1,7 @@
 package com.jiocoders.jio_webview.jiowebview
 
 import android.content.Context
+import android.net.http.SslError
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
@@ -9,6 +10,7 @@ import android.webkit.WebChromeClient
 import android.webkit.ConsoleMessage
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
+import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -26,15 +28,26 @@ class JioWebview(
         webViewClient = JioWebViewClient(methodChannel)
         webChromeClient = JioWebChromeClient(methodChannel)
         settings.apply {
+            // Set javascript mode
             javaScriptEnabled = true
             domStorageEnabled = true
+            // Set user agent
+            val defaultUserAgent = WebSettings.getDefaultUserAgent(context)
+            val customUserAgent = "$defaultUserAgent MyCustomApp/2.0"
+            userAgentString = customUserAgent
+            // Set pop-up window
+            javaScriptCanOpenWindowsAutomatically = true
+            setSupportMultipleWindows(true)
+            // Set no cache mode
             settings.cacheMode = WebSettings.LOAD_NO_CACHE
-            javaScriptCanOpenWindowsAutomatically = true  // Important for pop-ups
+            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
     }
     private val webViewController = WebViewController(webView)
 
     init {
+//        setWebViewProxy(webView, "192.168.1.1", 8080) // Set Proxy
+
         // Load the initial URL if provided
         val initialUrl = creationParams?.get("initialUrl") as? String
         initialUrl?.let {
@@ -303,6 +316,25 @@ private class JioWebViewClient(private val methodChannel: MethodChannel) : WebVi
         super.onPageFinished(view, url)
         methodChannel.invokeMethod("onPageFinished", mapOf("url" to (url ?: "")))
     }
+
+//    val proxyHeaders = mapOf(
+//        "Proxy-Authorization" to "Basic " + android.util.Base64.encodeToString(
+//            "username:password".toByteArray(),
+//            android.util.Base64.NO_WRAP
+//        )
+//    )
+//    override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
+//        request?.requestHeaders?.putAll(proxyHeaders)
+//        return super.shouldInterceptRequest(view, request)
+//    }
+//    override fun onReceivedSslError(
+//        view: WebView?,
+//        handler: SslErrorHandler?,
+//        error: SslError?
+//    ) {
+//        handler?.proceed()  // Ignore SSL certificate errors
+//        Log.w("WebView", "SSL Error ignored: ${error?.primaryError}")
+//    }
 
     override fun onReceivedError(
         view: WebView?,

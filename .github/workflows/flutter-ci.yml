@@ -79,6 +79,20 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Changes in this release:
+            - Feature 1
+            - Bugfix 2
+            - Improvement 3
+          draft: false  # Set to true if you want a draft release
+          prerelease: false  # Set to true if it's a pre-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure pub.dev token
         env:

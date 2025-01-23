@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool isLoading = false;
-  static const String webUrl = 'https://iocode.shop';
+  static const String webUrl = 'https://jiocoders.com';
   late final WebViewController _webViewController;
 
   @override
@@ -85,6 +85,8 @@ class _MyAppState extends State<MyApp> {
                 //     .evaluateJavascript("console.log('Console message test')");
                 // _webViewController.evaluateJavascript(
                 //     "window.open('https://www.google.com');");
+                final userAgent = await _webViewController.getUserAgent();
+                developer.log('defaultUserAgent:: $userAgent');
                 _webViewController.evaluateJavascript("""
                     var newWin = window.open('https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_win_open');
                     if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') { 
