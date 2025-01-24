@@ -92,7 +92,7 @@ jobs:
           draft: false  # Set to true if you want a draft release
           prerelease: false  # Set to true if it's a pre-release
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_RELEASE }}
 #        run: |
 #          flutter build apk
 #          ./create_release.sh
