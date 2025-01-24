@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> {
                     } else {
                         console.log('Pop-up opened successfully!'); 
                     }
-                  """);
+                  """); // Show pop-ups useCleartextTraffic handle SslError
               },
             ),
             IconButton(
