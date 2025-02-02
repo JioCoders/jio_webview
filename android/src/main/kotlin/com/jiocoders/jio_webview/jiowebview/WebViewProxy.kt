@@ -5,7 +5,7 @@ import android.net.Proxy
 import android.webkit.WebView
 import java.lang.reflect.Field
 
-fun setWebViewProxy(webView: WebView, host: String, port: Int): Boolean {
+fun WebViewProxy(webView: WebView, host: String, port: Int): Boolean {
     return try {
         val webviewClass = Class.forName("android.webkit.WebView")
         val field: Field = webviewClass.getDeclaredField("mContext")

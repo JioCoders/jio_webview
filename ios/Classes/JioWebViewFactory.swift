@@ -3,15 +3,19 @@ import UIKit
 import WebKit
 
 public class JioWebviewFactory: NSObject, FlutterPlatformViewFactory {
-    private let registrar: FlutterPluginRegistrar
+    private var messenger: FlutterBinaryMessenger
 
-    public init(registrar: FlutterPluginRegistrar) {
-        self.registrar = registrar
+    public init(binaryMessenger: FlutterBinaryMessenger) {
+        self.messenger = binaryMessenger
         super.init()
     }
 
     public func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
-        return NativeWebview(frame: frame, viewId: viewId, registrar: registrar)
+        return NativeWebview(frame: frame, viewId: viewId, viewIdentifier: args, binaryMessenger: messenger)
+    }
+
+    func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
+        return FlutterStandardMessageCodec.sharedInstance()
     }
 }
 
@@ -21,20 +25,26 @@ public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
     var popupWebView: WKWebView?
     private var methodChannel: FlutterMethodChannel
 
-    init(webView: WKWebView, viewId: Int64, registrar: FlutterPluginRegistrar) {
-        self.webView = webView
-
-        // Get the Flutter engine's binary messenger
-        let messenger = registrar.messenger()
-
-        // Set up a Flutter method channel to communicate with Flutter side
-        methodChannel = FlutterMethodChannel(name: "com.jiocoders/jio_webview_\(viewId)", binaryMessenger: messenger)
+    init(viewId: Int64, messenger: FlutterBinaryMessenger, initialUrl: String?) {
         super.init()
+
+        let preferences = WKPreferences()
+        preferences.javaScriptEnabled = true
+        preferences.javaScriptCanOpenWindowsAutomatically = true
+
+        let configuration = WKWebViewConfiguration()
+        configuration.preferences = preferences
+
+        let webView = WKWebView(frame: frame, configuration: configuration) // With configuration
+        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         // Assign self as the navigation delegate
         webView.navigationDelegate = self
 
         webView.uiDelegate = self
+
+        // Set up a Flutter method channel to communicate with Flutter side
+        methodChannel = FlutterMethodChannel(name: "com.jiocoders/jio_webview_\(viewId)", binaryMessenger: messenger)
 
         // Set up the method channel to handle method calls from Flutter
         methodChannel.setMethodCallHandler { [weak self] call, result in
@@ -69,20 +79,18 @@ public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
 
     // WKUIDelegate Methods (for handling popups)
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        // Here we create a new WKWebView instance to handle the popup
-//        let popupWebView = WKWebView(frame: webView.frame, configuration: configuration)
-//        popupWebView.uiDelegate = self  // Set the UI delegate for the popup webview
-
         let preferences = WKPreferences()
         preferences.javaScriptEnabled = true
         preferences.javaScriptCanOpenWindowsAutomatically = true
 
         // You can add this new popupWebView to your view hierarchy here or manage it accordingly
+        // Here we create a new WKWebView instance to handle the popup
+        // popupWebView = WKWebView(frame: webView.frame, configuration: configuration)
         popupWebView = WKWebView(frame: webView.bounds, configuration: configuration)
         configuration.preferences = preferences
         self.popupWebView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.popupWebView!.navigationDelegate = self
-        self.popupWebView!.uiDelegate = self
+        self.popupWebView!.uiDelegate = self  // Set the UI delegate for the popup webview
         webView.addSubview(popupWebView!)
 
         // Notify Flutter that a popup has been created
@@ -193,23 +201,14 @@ public class WebViewController: NSObject, WKNavigationDelegate, WKUIDelegate {
 public class NativeWebview: NSObject, FlutterPlatformView {
     private var webViewController: WebViewController
 
-    init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
-        let preferences = WKPreferences()
-        preferences.javaScriptEnabled = true
-        preferences.javaScriptCanOpenWindowsAutomatically = true
-
-        let configuration = WKWebViewConfiguration()
-        configuration.preferences = preferences
-
-//        let webView = WKWebView(frame: frame) // Without configuration
-        let webView = WKWebView(frame: frame, configuration: configuration) // With configuration
-//        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-        self.webViewController = WebViewController(webView: webView, viewId: viewId, registrar: registrar)
+    init(frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, binaryMessenger messenger: FlutterBinaryMessenger) {
+        // Extract URL and other params from arguments
+        var initialUrl: String? = nil
+        if let arguments = args as? [String: Any] {
+            initialUrl = arguments["initialUrl"] as? String
+        }
+        self.webViewController = WebViewController(viewId: viewId, binaryMessenger: messenger!, initialUrl: initialUrl)
         super.init()
-
-        // Load default URL
-        webViewController.loadUrl(url: "https://pub.dev", result: { _ in })
     }
 
     public func view() -> UIView {

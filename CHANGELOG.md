@@ -25,3 +25,7 @@
 ## [0.1.5] - 23 January 2025
 
 * JioWebView android `webChromeClient`, `errors` & `userAgent` updates.
+
+## [0.1.6] - 02 February 2025
+
+* JioWebView android `webChromeClient`, `JioWebViewController` & `JioWebViewMethodChannel` updates.

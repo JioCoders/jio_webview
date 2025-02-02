@@ -50,10 +50,9 @@ android {
     }
 
     dependencies {
+        implementation 'androidx.webkit:webkit:1.12.1'
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
-
-        implementation 'androidx.webkit:webkit:1.9.0'  // Update to latest version
     }
 
     testOptions {

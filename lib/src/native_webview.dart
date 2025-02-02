@@ -21,6 +21,7 @@ class NativeWebView extends StatelessWidget {
 
     if (defaultTargetPlatform == TargetPlatform.android) {
       return PlatformViewLink(
+        key: key,
         viewType: viewTypeValue,
         onCreatePlatformView: (PlatformViewCreationParams params) {
           final controller = WebViewController(params.id);
@@ -48,6 +49,7 @@ class NativeWebView extends StatelessWidget {
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
+        key: key,
         viewType: viewTypeValue,
         onPlatformViewCreated: (int viewId) {
           final controller = WebViewController(viewId);

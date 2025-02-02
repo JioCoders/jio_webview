@@ -9,12 +9,13 @@ import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 import io.flutter.plugin.common.StandardMessageCodec
 
-class WebViewFactory(private val messenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+class JioWebViewFactory(private val messenger: BinaryMessenger) :
+    PlatformViewFactory(StandardMessageCodec.INSTANCE) {
 
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         Log.d(JioWebviewPlugin.TAG_APP, "WebViewFactory.viewId :: $viewId")
         val methodChannel = MethodChannel(messenger, "com.jiocoders/jio_webview_$viewId")
-        val params = args as? Map<String, Any>
-        return JioWebview(context!!, params, methodChannel)
+        val params = args as? Map<*, *>
+        return JioAndroidWebview(context!!, params, methodChannel)
     }
 }

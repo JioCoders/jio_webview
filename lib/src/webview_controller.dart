@@ -1,6 +1,8 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/services.dart';
+import 'package:jio_webview/src/utils/javascript_channel.dart';
+import 'package:jio_webview/src/utils/javascript_message.dart';
 
 typedef NavigationDelegateHandler = Future<NavigationDecision> Function(
     NavigationRequest request);
@@ -25,10 +27,6 @@ class WebViewController {
     _channel.invokeMethod('loadUrl', {'url': url});
   }
 
-  Future<String> evaluateJavascript(String script) async =>
-      await _channel.invokeMethod('evaluateJavascript', {'script': script}) ??
-      '';
-
   Future<void> loadHtmlAsset(String assetPath) async =>
       _channel.invokeMethod('loadHtmlAsset', {'assetPath': assetPath});
 
@@ -46,61 +44,106 @@ class WebViewController {
   Future<void> setUserAgent(String userAgent) async =>
       _channel.invokeMethod('setUserAgent', {'userAgent': userAgent});
 
+  Future<String> evaluateJavascript(String script) async =>
+      await _channel.invokeMethod('evaluateJavaScript', {'script': script}) ??
+      '';
+
   Future<String> runJavaScript(String script) async =>
       await _channel.invokeMethod('runJavaScript', {'script': script}) ?? '';
 
-  Future<void> registerPopupWindowListener() async {
-    // Flutter side: listening for popup creation events
+  void Function(String)? onUpiUrlDetected;
+
+  // void Function(dynamic)? onJsMessageReceived;
+  // void Function(String)? onPageError;
+  Future<void> registerPopupWindowJavaScriptListener(
+      NavigationDelegate delegate,
+      {required JavascriptChannel jsChannel}) async {
+    developer.log('javaScriptChannelRegistered::${jsChannel.name}');
+    // Flutter side: listening for popup creation events, handle navigation and JS Events
     _channel.setMethodCallHandler((call) async {
+      developer.log(
+          'Received::Method - ${call.method}, Argument - ${call.arguments}');
+      final args = call.arguments as Map<dynamic, dynamic>? ?? {};
       switch (call.method) {
+        case 'onUpiUrlDetected':
+          if (onUpiUrlDetected != null) {
+            onUpiUrlDetected!(call.arguments as String);
+          }
+          break;
+        // case 'onPageError':
+        //   if (onPageError != null) {
+        //     onPageError!(call.arguments as String);
+        //   }
+        //   break;
+        case "onJsInterfaceMessage":
+          // if (onJsMessageReceived != null) {
+          //   onJsMessageReceived!(call.arguments);
+          // }
+          String messageString = args['message'];
+          final jsMessage = JavaScriptMessage(message: messageString);
+          jsChannel.onMessageReceived.call(jsMessage);
+          return null;
+        case "onJioInterfaceMessage":
+          String messageString = args['message'];
+          final jsMessage = JavaScriptMessage(message: messageString);
+          jsChannel.onMessageReceived.call(jsMessage);
+          return null;
+        case "onTitleReceived":
+          String titleString = args['title'];
+          developer.log("Title Received: $titleString");
+          break;
+        // Handle pop-ups
         case "onPopupWindowCreated":
-          String url = call.arguments['url'];
+          String url = args['url'];
           developer.log("Popup window created with URL: $url");
           break;
         case 'onPopupWindowClosed':
           developer.log("Pop-up window closed");
           break;
-        case 'onProgressChanged':
-          developer.log("Loading progress: ${call.arguments['progress']}%");
-          break;
         // Handle other cases as needed
         case 'onJsAlert':
-          developer.log("JS Alert: ${call.arguments['message']}");
+          developer.log("JS Alert: ${args['message']}");
           break;
         case 'onJsPrompt':
-          developer.log("JS Prompt: ${call.arguments['message']}");
+          developer.log("JS Prompt: ${args['message']}");
           break;
         case 'onConsoleMessage':
-          developer.log("Console Log: ${call.arguments['message']}");
+          developer.log("Console Log: ${args['message']}");
           break;
-      }
-    });
-  }
-
-  Future<void> setNavigationDelegate(NavigationDelegate delegate) async {
-    _channel.setMethodCallHandler((MethodCall call) async {
-      switch (call.method) {
         case "onPageStarted":
-          delegate.onPageStarted?.call(call.arguments["url"]);
+          delegate.onPageStarted?.call(args["url"]);
+          break;
+        case 'onProgressChanged':
+          delegate.onProgress?.call(args["progress"]);
           break;
         case "onPageFinished":
-          delegate.onPageFinished?.call(call.arguments["url"]);
+          delegate.onPageFinished?.call(args["url"]);
           break;
         case "onHttpError":
-          delegate.onHttpError
-              ?.call(HttpResponseError(call.arguments["error"]));
+          final httpError = HttpResponseError(args["error"]);
+          delegate.onHttpError?.call(httpError);
           break;
+        // Handle navigation request
         case "onNavigationRequest":
-          final request = NavigationRequest(call.arguments["url"]);
+          final request = NavigationRequest(args["url"]);
           final decision = await delegate.onNavigationRequest?.call(request);
           return decision == NavigationDecision.prevent
               ? "prevent"
               : "navigate";
         default:
-          return null;
+          developer.log("Unknown method: ${call.method}");
+          break;
       }
     });
   }
+}
+
+class JsMessageDelegate {
+  final void Function(String message)? onMessageReceived;
+
+  JsMessageDelegate({
+    this.onMessageReceived,
+  });
 }
 
 class NavigationDelegate {

@@ -3,7 +3,7 @@ package com.jiocoders.jio_webview.jiowebview
 import android.util.Log
 import android.webkit.WebView
 
-class WebViewController(private val webView: WebView) {
+class JioWebViewController(private val webView: WebView) {
 
     fun loadUrl(url: String) {
         Log.d("WebViewController", "LoadUrl :: $url");

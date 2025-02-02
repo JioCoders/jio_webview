@@ -7,7 +7,7 @@ public class JioWebviewPlugin: NSObject, FlutterPlugin {
     let instance = JioWebviewPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
 
-    let factory = JioWebviewFactory(registrar: registrar)
+    let factory = JioWebviewFactory(binaryMessenger: registrar.messenger())
     registrar.register(factory, withId: "com.jiocoders/jio_webview")
   }
 
