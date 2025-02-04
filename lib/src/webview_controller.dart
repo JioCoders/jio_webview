@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/services.dart';
 import 'package:jio_webview/src/utils/javascript_channel.dart';
 import 'package:jio_webview/src/utils/javascript_message.dart';
+import 'package:jio_webview/src/utils/typedef_handler.dart';
 
 typedef NavigationDelegateHandler = Future<NavigationDecision> Function(
     NavigationRequest request);
@@ -51,10 +52,6 @@ class WebViewController {
   Future<String> runJavaScript(String script) async =>
       await _channel.invokeMethod('runJavaScript', {'script': script}) ?? '';
 
-  void Function(String)? onUpiUrlDetected;
-
-  // void Function(dynamic)? onJsMessageReceived;
-  // void Function(String)? onPageError;
   Future<void> registerPopupWindowJavaScriptListener(
       NavigationDelegate delegate,
       {required JavascriptChannel jsChannel}) async {
@@ -66,39 +63,31 @@ class WebViewController {
       final args = call.arguments as Map<dynamic, dynamic>? ?? {};
       switch (call.method) {
         case 'onUpiUrlDetected':
-          if (onUpiUrlDetected != null) {
-            onUpiUrlDetected!(call.arguments as String);
+          TypedefHandler handler = TypedefHandler(onUpiUrlDetected: (url) {
+            developer.log('UPI URL detected::$url');
+          });
+          if (handler.onUpiUrlDetected != null) {
+            handler.onUpiUrlDetected!(args['url']);
           }
           break;
-        // case 'onPageError':
-        //   if (onPageError != null) {
-        //     onPageError!(call.arguments as String);
-        //   }
-        //   break;
-        case "onJsInterfaceMessage":
-          // if (onJsMessageReceived != null) {
-          //   onJsMessageReceived!(call.arguments);
-          // }
-          String messageString = args['message'];
-          final jsMessage = JavaScriptMessage(message: messageString);
-          jsChannel.onMessageReceived.call(jsMessage);
-          return null;
+        case 'onPageError':
+          TypedefHandler handler = TypedefHandler();
+          if (handler.onPageError != null) {
+            handler.onPageError!(args['error']);
+          }
+          break;
         case "onJioInterfaceMessage":
           String messageString = args['message'];
           final jsMessage = JavaScriptMessage(message: messageString);
           jsChannel.onMessageReceived.call(jsMessage);
-          return null;
-        case "onTitleReceived":
-          String titleString = args['title'];
-          developer.log("Title Received: $titleString");
-          break;
+          return String;
         // Handle pop-ups
         case "onPopupWindowCreated":
           String url = args['url'];
           developer.log("Popup window created with URL: $url");
           break;
         case 'onPopupWindowClosed':
-          developer.log("Pop-up window closed");
+          developer.log("Pop-up window closed successfully!");
           break;
         // Handle other cases as needed
         case 'onJsAlert':
@@ -109,6 +98,10 @@ class WebViewController {
           break;
         case 'onConsoleMessage':
           developer.log("Console Log: ${args['message']}");
+          break;
+        case "onTitleReceived":
+          String titleString = args['title'];
+          developer.log("Title Received: $titleString");
           break;
         case "onPageStarted":
           delegate.onPageStarted?.call(args["url"]);

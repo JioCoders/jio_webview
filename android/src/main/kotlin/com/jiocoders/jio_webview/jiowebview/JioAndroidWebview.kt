@@ -52,7 +52,7 @@ class JioAndroidWebview(
         methodChannel.setMethodCallHandler(methodChannelHandler)
 
         // Add a JavaScript interface
-        webView.addJavascriptInterface(WebAppInterface(methodChannel), "JioFlutterJsInterface")
+        webView.addJavascriptInterface(WebAppInterface(methodChannel), "FlutterWebView")
     }
 
     override fun getView(): WebView = webView
@@ -75,7 +75,7 @@ class JioAndroidWebview(
             // Example: This can be expanded for custom JS-to-Native communication
             Log.d(JioWebviewPlugin.TAG_APP, "Message from JavaScript: $message")
             Handler(Looper.getMainLooper()).post {
-                methodChannel.invokeMethod("onJsInterfaceMessage", mapOf("message" to message))
+                methodChannel.invokeMethod("onJioInterfaceMessage", mapOf("type" to "flutterEvent", "message" to message))
             }
         }
 
@@ -84,7 +84,7 @@ class JioAndroidWebview(
             // Example: This can be expanded for custom JS-to-Native communication
             Log.d(JioWebviewPlugin.TAG_APP, "Message from jioMessage: $message")
             Handler(Looper.getMainLooper()).post {
-                methodChannel.invokeMethod("onJioInterfaceMessage", mapOf("message" to message))
+                methodChannel.invokeMethod("onJioInterfaceMessage", mapOf("type" to "flutterEvent", "message" to message))
             }
         }
     }

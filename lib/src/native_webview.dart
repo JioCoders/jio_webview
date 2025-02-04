@@ -17,6 +17,7 @@ class NativeWebView extends StatelessWidget {
     final jioWebView = JioWebview();
 
     final MethodChannel channel = jioWebView.getMethodChannel();
+    final creationParams = {'initialUrl': webUrl};
     final viewTypeValue = channel.name;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -30,7 +31,7 @@ class NativeWebView extends StatelessWidget {
           }
           return PlatformViewsService.initSurfaceAndroidView(
             id: params.id,
-            creationParams: {'initialUrl': webUrl},
+            creationParams: creationParams,
             viewType: viewTypeValue,
             layoutDirection: TextDirection.ltr,
             creationParamsCodec: const StandardMessageCodec(),
@@ -50,11 +51,13 @@ class NativeWebView extends StatelessWidget {
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
         key: key,
+        creationParams: creationParams,
         viewType: viewTypeValue,
         onPlatformViewCreated: (int viewId) {
           final controller = WebViewController(viewId);
           onControllerCreated?.call(controller);
         },
+        layoutDirection: TextDirection.ltr,
         creationParamsCodec: const StandardMessageCodec(),
       );
     } else {

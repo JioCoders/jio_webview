@@ -29,3 +29,7 @@
 ## [0.1.6] - 02 February 2025
 
 * JioWebView android `webChromeClient`, `JioWebViewController` & `JioWebViewMethodChannel` updates.
+
+## [0.1.7] - 04 February 2025
+
+* JioWebView iOS `JioWebViewController` & `JioWebViewFactory` update.
