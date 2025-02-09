@@ -9,7 +9,6 @@ A Flutter plugin for both android and iOS which provides native webview.
 ## Performance Metrics
 
 - **Build Status:** The current status of the CI build.
-- **Test Coverage:** Information about test coverage (if you have a coverage tool integrated).
 - **Build Time:** Average build time for the CI.
 
 ## Getting Started

@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import WebKit
+@preconcurrency import WebKit
 
 // WebViewController - Handles WebView logic and managing WKWebView
 public class WebViewController:
@@ -32,14 +32,43 @@ public class WebViewController:
         // Set the script message handler
         contentController.add(self, name: "FlutterWebView") // JavaScript message handler
         webConfiguration.userContentController = contentController
+        // Example: Disable cookies or other privacy-related settings
+        webConfiguration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        // Example: Handle Web Privacy or Tracking policies
+        webConfiguration.processPool = WKProcessPool()
 
         // Create the WebView
-        self.webView = WKWebView(frame: frame, configuration: configuration) // With configuration
+//        self.webView = WKWebView(frame: CGRect.zero, configuration: configuration)
+        self.webView = WKWebView(frame: frame, configuration: configuration)
         self.webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        guard let webView = self.webView else { return }
+//        if let rootViewController = UIApplication.shared.keyWindow?.rootViewController {
+//            rootViewController.view.addSubview(webView!)
+//            // Add the WKWebView as a subview and set constraints (for full-screen WebView)
+//            webView?.translatesAutoresizingMaskIntoConstraints = false
+//            NSLayoutConstraint.activate([
+//                webView!.topAnchor.constraint(equalTo: rootViewController.view.topAnchor),
+//                webView!.bottomAnchor.constraint(equalTo: rootViewController.view.bottomAnchor),
+//                webView!.leftAnchor.constraint(equalTo: rootViewController.view.leftAnchor),
+//                webView!.rightAnchor.constraint(equalTo: rootViewController.view.rightAnchor)
+//            ])
+//        }
 
         webView.uiDelegate = self
         // Assign self and set as the navigation delegate to handle navigation requests
         webView.navigationDelegate = self
+
+//        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String{
+//            userAgent =  userAgent + "v\(version)"
+//            webView.evaluateJavaScript("navigator.userAgent") { (result, error) in
+//                if let defaultUserAgent = result as? String {
+//                     customUserAgent = defaultUserAgent + " \(userAgent)"
+//                    self.webView.customUserAgent = customUserAgent
+//                    print("customUserAgent-\(customUserAgent)") //for Future testing
+//                }
+//            }
+//        }
 
         // Set up a Flutter method channel to communicate with Flutter side
         methodChannel = FlutterMethodChannel(name: "com.jiocoders/jio_webview_\(viewId)", binaryMessenger: messenger)
@@ -151,7 +180,7 @@ public class WebViewController:
         }
     }
 
-    // handle method calls
+    // MARK: - Handle Flutter Method Calls
     private func handleMethodCall(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "loadUrl":

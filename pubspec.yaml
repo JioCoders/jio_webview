@@ -18,7 +18,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
+  jio_webview_platform_interface:
+    path: ../jio_webview_platform_interface # yet to be published
+#  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
   flutter_test:
