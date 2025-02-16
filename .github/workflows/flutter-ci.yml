@@ -13,6 +13,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+  releases: write
+  id-token: write # Required for authentication using OIDC
+
 jobs:
   build:
     name: Flutter Build & Release
@@ -147,7 +152,7 @@ jobs:
           body: |
             Automated release for tag ${{ github.ref_name }}.
         env:
-          GITHUB_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
 
       - name: Get latest tag
         id: get_latest_tag
@@ -176,7 +181,7 @@ jobs:
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
         env:
-          GITHUB_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
 
   publish:
     permissions:
