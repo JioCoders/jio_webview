@@ -15,7 +15,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write # Required for authentication using OIDC
 
 jobs:
   build:
@@ -143,16 +142,6 @@ jobs:
           new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
           echo "VERSION=$new_version" >> $GITHUB_ENV
 
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body: |
-            Automated release for tag ${{ github.ref_name }}.
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
-
       - name: Get latest tag
         id: get_latest_tag
         run: |
@@ -179,6 +168,16 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated release for tag ${{ github.ref_name }}.
         env:
           GITHUB_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
 
