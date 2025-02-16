@@ -7,8 +7,8 @@ name: Flutter-CI
 
 on:
   push:
-#    tags:
-#      - 'v*' # Trigger on version tags like v1.0.0
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
@@ -145,3 +145,11 @@ jobs:
 #        env:
 #          PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
 #        run: echo "$PUB_DEV_TOKEN" > ~/.pub-cache/credentials.json && dart pub publish --force
+
+  publish:
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      environment: 'PUB_DEV_CREDENTIALS'
+      # working-directory: path/to/package/within/repository
