@@ -79,28 +79,28 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body: |
-            Changes in this release:
-            - Feature 1
-            - Bugfix 2
-            - Improvement 3
-          draft: false  # Set to true if you want a draft release
-          prerelease: false  # Set to true if it's a pre-release
-        env:
-          PUB_DEV_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
+#      - name: Create GitHub Release
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          tag_name: ${{ github.ref_name }}
+#          name: Release ${{ github.ref_name }}
+#          body: |
+#            Changes in this release:
+#            - Feature 1
+#            - Bugfix 2
+#            - Improvement 3
+#          draft: false  # Set to true if you want a draft release
+#          prerelease: false  # Set to true if it's a pre-release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_RELEASE }}
 #        run: |
 #          flutter build apk
 #          ./create_release.sh
 
       - name: Configure pub.dev token
         env:
-          PUB_DEV_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
-        run: echo "$PUB_DEV_CREDENTIALS" > ~/.pub-cache/credentials.json
+          PUB_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
+        run: echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json
 
       - name: Configure pub.dev credentials
         env:
