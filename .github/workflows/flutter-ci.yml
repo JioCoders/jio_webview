@@ -93,9 +93,9 @@ jobs:
           prerelease: false  # Set to true if it's a pre-release
         env:
           GITHUB_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
-        run: |
-          flutter build apk
-          ./create_release.sh
+#        run: |
+#          flutter build apk
+#          ./create_release.sh
 
       - name: Configure pub.dev token
         env:
