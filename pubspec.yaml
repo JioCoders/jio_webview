@@ -1,13 +1,13 @@
 name: jio_webview
 description: "A Flutter plugin for both android and iOS which provides native webview."
-version: 0.1.7
+version: 0.1.8
 homepage: https://github.com/JioCoders/jio_webview.git
 repository: https://github.com/JioCoders/jio_webview.git
 issue_tracker: https://github.com/JioCoders/jio_webview/issues
 topics:
   - webview
   - native
-  - platformview
+  - platform-view
   - webclient
   - controller
 
@@ -18,9 +18,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  jio_webview_platform_interface:
-    path: ../jio_webview_platform_interface # yet to be published
-#  plugin_platform_interface: ^2.0.2
+  jio_webview_platform_interface: ^0.0.1
 
 dev_dependencies:
   flutter_test:
@@ -28,6 +26,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   logger: ^2.5.0
   build_runner: ^2.4.13
+  plugin_platform_interface: ^2.1.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

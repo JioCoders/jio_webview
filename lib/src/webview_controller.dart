@@ -1,63 +1,57 @@
 import 'dart:developer' as developer;
 
-import 'package:flutter/services.dart';
 import 'package:jio_webview/src/utils/javascript_channel.dart';
 import 'package:jio_webview/src/utils/javascript_message.dart';
 import 'package:jio_webview/src/utils/typedef_handler.dart';
+import 'package:jio_webview_platform_interface/webview/webview_platform_interface.dart';
 
 typedef NavigationDelegateHandler = Future<NavigationDecision> Function(
     NavigationRequest request);
 
 class WebViewController {
-  final MethodChannel _channel;
+  final WebviewPlatformInterface _platform;
 
-  WebViewController(int viewId)
-      : _channel = MethodChannel('com.jiocoders/jio_webview_$viewId');
+  WebViewController(int viewId) : _platform = WebviewPlatformInterface.instance;
 
-  Future<void> reload() async => _channel.invokeMethod('reload');
+  Future<void> reload() async => await _platform.reload();
 
-  Future<bool> canGoBack() async =>
-      await _channel.invokeMethod('canGoBack') ?? false;
+  Future<bool> canGoBack() => _platform.canGoBack();
 
-  Future<void> goBack() async => _channel.invokeMethod('goBack');
+  Future<void> goBack() => _platform.goBack();
 
-  Future<String> getCurrentUrl() async =>
-      await _channel.invokeMethod('getCurrentUrl') ?? '';
+  Future<String> getCurrentUrl() => _platform.getCurrentUrl();
 
   Future<void> loadUrl(String url) async {
-    _channel.invokeMethod('loadUrl', {'url': url});
+    _platform.loadUrl(url);
   }
 
   Future<void> loadHtmlAsset(String assetPath) async =>
-      _channel.invokeMethod('loadHtmlAsset', {'assetPath': assetPath});
+      _platform.loadHtmlAsset(assetPath);
 
   Future<void> loadHtmlString(String htmlString) async =>
-      _channel.invokeMethod('loadHtmlString', {'htmlString': htmlString});
+      _platform.loadHtmlString(htmlString);
 
-  Future<void> clearCache() async => _channel.invokeMethod('clearCache');
+  Future<void> clearCache() async => _platform.clearCache();
 
-  Future<void> clearLocalStorage() async =>
-      _channel.invokeMethod('clearLocalStorage');
+  Future<void> clearLocalStorage() async => _platform.clearLocalStorage();
 
-  Future<String> getUserAgent() async =>
-      await _channel.invokeMethod('getUserAgent') ?? '';
+  Future<String> getUserAgent() async => _platform.getUserAgent();
 
   Future<void> setUserAgent(String userAgent) async =>
-      _channel.invokeMethod('setUserAgent', {'userAgent': userAgent});
+      _platform.setUserAgent(userAgent);
 
   Future<String> evaluateJavascript(String script) async =>
-      await _channel.invokeMethod('evaluateJavaScript', {'script': script}) ??
-      '';
+      _platform.evaluateJavascript(script);
 
   Future<String> runJavaScript(String script) async =>
-      await _channel.invokeMethod('runJavaScript', {'script': script}) ?? '';
+      _platform.runJavaScript(script);
 
   Future<void> registerPopupWindowJavaScriptListener(
       NavigationDelegate delegate,
       {required JavascriptChannel jsChannel}) async {
     developer.log('javaScriptChannelRegistered::${jsChannel.name}');
     // Flutter side: listening for popup creation events, handle navigation and JS Events
-    _channel.setMethodCallHandler((call) async {
+    _platform.methodChannel.setMethodCallHandler((call) async {
       developer.log(
           'Received::Method - ${call.method}, Argument - ${call.arguments}');
       final args = call.arguments as Map<dynamic, dynamic>? ?? {};

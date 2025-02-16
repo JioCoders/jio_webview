@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:jio_webview/jio_webview.dart';
+import 'package:jio_webview_platform_interface/webview/webview_method_channel.dart';
+import 'package:jio_webview_platform_interface/webview/webview_platform_interface.dart';
 
 class NativeWebView extends StatelessWidget {
   const NativeWebView(
@@ -14,9 +16,9 @@ class NativeWebView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final jioWebView = JioWebview();
+    final jioPlugin = JioPluginPlatform();
 
-    final MethodChannel channel = jioWebView.getMethodChannel();
+    final MethodChannel channel = jioPlugin.getMethodChannel();
     final creationParams = {'initialUrl': webUrl};
     final viewTypeValue = channel.name;
 
@@ -25,6 +27,9 @@ class NativeWebView extends StatelessWidget {
         key: key,
         viewType: viewTypeValue,
         onCreatePlatformView: (PlatformViewCreationParams params) {
+          final mc = MethodChannel('com.jiocoders/jio_webview_${params.id}');
+          WebviewPlatformInterface.instance =
+              MethodChannelWebview(customMethodChannel: mc);
           final controller = WebViewController(params.id);
           if (onControllerCreated != null) {
             onControllerCreated?.call(controller);

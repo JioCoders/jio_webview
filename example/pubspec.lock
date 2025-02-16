@@ -109,13 +109,14 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.7"
+    version: "0.1.8"
   jio_webview_platform_interface:
     dependency: transitive
     description:
-      path: "../../jio_webview_platform_interface"
-      relative: true
-    source: path
+      name: jio_webview_platform_interface
+      sha256: "07db1d092769bab47877d8e7e92a770979a37c4386cd9b270c2817d76bcfef58"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1"
   leak_tracker:
     dependency: transitive

@@ -7,8 +7,8 @@ name: Flutter-CI
 
 on:
   push:
-#    tags:
-#      - 'v*' # Trigger on version tags like v1.0.0
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
@@ -102,12 +102,12 @@ jobs:
           PUB_DEV_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
         run: echo "$PUB_DEV_CREDENTIALS" > ~/.pub-cache/credentials.json
 
-#      - name: Configure pub.dev credentials
-#        env:
-#          PUB_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
-#        run: |
-#          mkdir -p ~/.pub-cache
-#          echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json
+      - name: Configure pub.dev credentials
+        env:
+          PUB_CREDENTIALS: ${{ secrets.PUB_DEV_CREDENTIALS }}
+        run: |
+          mkdir -p ~/.pub-cache
+          echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json
 
       - name: Format code
         run: dart format --fix .
@@ -140,8 +140,17 @@ jobs:
 #          echo "VERSION=$new_version" >> $GITHUB_ENV
 
       # Publish the package
-#      - name: Publish to pub.dev
-#        run: flutter pub publish --force
-#        env:
-#          PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
+      - name: Publish to pub.dev
+        run: flutter pub publish --force
+        env:
+          PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_CREDENTIALS }}
 #        run: echo "$PUB_DEV_TOKEN" > ~/.pub-cache/credentials.json && dart pub publish --force
+
+#      - name: Publish to pub.dev
+#        publish:
+#          permissions:
+#            id-token: write # Required for authentication using OIDC
+#          uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+#          with:
+#            environment: 'PUB_DEV_CREDENTIALS'
+            # working-directory: path/to/package/within/repository

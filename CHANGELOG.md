@@ -33,3 +33,8 @@
 ## [0.1.7] - 04 February 2025
 
 * JioWebView iOS `JioWebViewController` & `JioWebViewFactory` update.
+
+
+## [0.1.8] - 16 February 2025
+
+* JioWebView iOS `JioWebViewController`, `flutter-ci` & `pubspec` update.
