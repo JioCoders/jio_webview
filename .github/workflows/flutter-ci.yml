@@ -139,11 +139,15 @@ jobs:
           new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
           echo "VERSION=$new_version" >> $GITHUB_ENV
 
-  create-tag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated release for tag ${{ github.ref_name }}.
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
 
       - name: Get latest tag
         id: get_latest_tag
@@ -172,7 +176,7 @@ jobs:
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
 
   publish:
     permissions:
