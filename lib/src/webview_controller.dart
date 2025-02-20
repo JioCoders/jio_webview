@@ -46,8 +46,7 @@ class WebViewController {
   Future<String> runJavaScript(String script) async =>
       _platform.runJavaScript(script);
 
-  Future<void> registerPopupWindowJavaScriptListener(
-      NavigationDelegate delegate,
+  Future<void> registerJavaScriptListener(NavigationDelegate delegate,
       {required JavascriptChannel jsChannel}) async {
     developer.log('javaScriptChannelRegistered::${jsChannel.name}');
     // Flutter side: listening for popup creation events, handle navigation and JS Events

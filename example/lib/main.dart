@@ -99,7 +99,7 @@ class _MyAppState extends State<MyApp> {
 ''';
 
   Future<void> setupController() async {
-    _webViewController.registerPopupWindowJavaScriptListener(
+    _webViewController.registerJavaScriptListener(
       NavigationDelegate(
         onPageStarted: (url) {
           developer.log("Main.onPageStarted::$url");
