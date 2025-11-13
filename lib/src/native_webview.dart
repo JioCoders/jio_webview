@@ -9,9 +9,10 @@ import 'package:jio_webview_platform_interface/webview/webview_platform_interfac
 
 class NativeWebView extends StatelessWidget {
   const NativeWebView(
-      {super.key, required this.onControllerCreated, required this.webUrl});
+      {super.key, required this.onControllerCreated, required this.webUrl, required this.headers});
 
   final String webUrl;
+  final Map<String, String> headers;
   final void Function(WebViewController controller)? onControllerCreated;
 
   @override
@@ -19,7 +20,7 @@ class NativeWebView extends StatelessWidget {
     final jioPlugin = JioPluginPlatform();
 
     final MethodChannel channel = jioPlugin.getMethodChannel();
-    final creationParams = {'initialUrl': webUrl};
+    final creationParams = {'initialUrl': webUrl, 'headers': headers};
     final viewTypeValue = channel.name;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
