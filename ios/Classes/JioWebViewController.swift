@@ -78,9 +78,13 @@ public class WebViewController:
             self?.handleMethodCall(call, result: result)
         }
 
-        // If we have a URL, load it into the webview
+        // If we have a URL and headers, load it into the webview
+        let headers = dict?["headers"] as? [String: String] ?? [:]
         if let url = initialUrl, let requestURL = URL(string: url) {
             let request = URLRequest(url: requestURL)
+            for (key, value) in headers {
+                request.setValue(value, forHTTPHeaderField: key)
+            }
             webView.load(request)
         }
     }
