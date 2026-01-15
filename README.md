@@ -1,6 +1,8 @@
 # jio_webview
 
-![Flutter CI](https://github.com/jiocoders/jio_inet/actions/workflows/flutter-ci.yml/badge.svg)
+[![Pub](https://img.shields.io/pub/v/jio_webview.svg)](https://pub.dev/packages/jio_webview)
+[![pub points](https://img.shields.io/pub/points/jio_webview?color=2E8B57&label=pub%20points)](https://pub.dev/packages/jio_webview/score)
+![Flutter CI](https://github.com/jiocoders/jio_webview/actions/workflows/flutter-ci.yml/badge.svg)
 
 ## Description
 
@@ -254,9 +256,11 @@ class _MyAppState extends State<MyApp> {
 
 ```
 
-[![Pub](https://img.shields.io/pub/v/jio_inet.svg)](https://pub.dev/packages/jio_inet)
-[![GitHub release](https://img.shields.io/github/release/jiocoders/jio_inet.svg)](https://GitHub.com/jiocoders/jio_inet/releases/)
+[![Pub](https://img.shields.io/pub/v/jio_webview.svg)](https://pub.dev/packages/jio_webview)
+[![GitHub release](https://img.shields.io/github/release/jiocoders/jio_webview.svg)](https://GitHub.com/jiocoders/jio_webview/releases/)
+[![pub points](https://img.shields.io/pub/points/jio_webview?color=2E8B57&label=pub%20points)](https://pub.dev/packages/jio_webview/score)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 # License
 
