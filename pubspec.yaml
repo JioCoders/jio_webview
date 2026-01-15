@@ -18,7 +18,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  jio_webview_platform_interface: ^0.0.1
+  jio_webview_platform_interface: ^1.0.2
 
 dev_dependencies:
   flutter_test:
