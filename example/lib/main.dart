@@ -198,6 +198,7 @@ class _MyAppState extends State<MyApp> {
         body: Stack(
           children: [
             NativeWebView(
+              headers: const {},
               webUrl: webUrl,
               onControllerCreated: (wc) {
                 _webViewController = wc;
