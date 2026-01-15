@@ -21,7 +21,8 @@ void main() {
     });
 
     test('getWebviewMethodChannel returns correct channel', () {
-      final channel = WebviewPlatformInterface.instance.getWebviewMethodChannel();
+      final channel =
+          WebviewPlatformInterface.instance.getWebviewMethodChannel();
       expect(channel.name, equals('com.jiocoders/test_webview'));
     });
 
@@ -45,12 +46,14 @@ void main() {
     });
 
     test('evaluateJavascript returns expected result', () async {
-      final result = await WebviewPlatformInterface.instance.evaluateJavascript('alert("Hi")');
+      final result = await WebviewPlatformInterface.instance
+          .evaluateJavascript('alert("Hi")');
       expect(result, equals('evaluated:alert("Hi")'));
     });
 
     test('runJavaScript returns expected result', () async {
-      final result = await WebviewPlatformInterface.instance.runJavaScript('alert("Hi")');
+      final result =
+          await WebviewPlatformInterface.instance.runJavaScript('alert("Hi")');
       expect(result, equals('ran:alert("Hi")'));
     });
   });

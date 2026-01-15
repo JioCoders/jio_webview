@@ -5,11 +5,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:jio_webview/jio_webview.dart';
 import 'package:jio_webview_platform_interface/webview/webview_method_channel.dart';
-import 'package:jio_webview_platform_interface/webview/webview_platform_interface.dart';
 
 class NativeWebView extends StatelessWidget {
   const NativeWebView(
-      {super.key, required this.onControllerCreated, required this.webUrl, required this.headers});
+      {super.key,
+      required this.onControllerCreated,
+      required this.webUrl,
+      required this.headers});
 
   final String webUrl;
   final Map<String, String> headers;
