@@ -4,11 +4,14 @@ PODS:
     - Flutter
   - jio_webview (0.0.1):
     - Flutter
+  - url_launcher_ios (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - jio_webview (from `.symlinks/plugins/jio_webview/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
@@ -17,12 +20,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
   jio_webview:
     :path: ".symlinks/plugins/jio_webview/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  jio_webview: 7bb6b60bfd6bf72fc453c3621c4422d5299a9e6a
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  jio_webview: de01382bbb0ab22ae831bd7681e85e91b9b71fbd
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
-PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+PODFILE CHECKSUM: 4f1c12611da7338d21589c0b2ecd6bd20b109694
 
 COCOAPODS: 1.16.2

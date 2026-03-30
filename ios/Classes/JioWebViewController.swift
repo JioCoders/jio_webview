@@ -14,7 +14,13 @@ public class WebViewController:
     private var webView: WKWebView!
     var popupWebView: WKWebView?
 
-    init(frame: CGRect, viewId: Int64, messenger: FlutterBinaryMessenger, initialUrl: String?) {
+    init(
+        frame: CGRect,
+        viewId: Int64,
+        messenger: FlutterBinaryMessenger,
+        initialUrl: String?,
+        headers: [String: String]
+    ) {
 //        super.init(nibName: nil, bundle: nil)
         super.init()
 
@@ -31,11 +37,11 @@ public class WebViewController:
 
         // Set the script message handler
         contentController.add(self, name: "FlutterWebView") // JavaScript message handler
-        webConfiguration.userContentController = contentController
+        configuration.userContentController = contentController
         // Example: Disable cookies or other privacy-related settings
-        webConfiguration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
         // Example: Handle Web Privacy or Tracking policies
-        webConfiguration.processPool = WKProcessPool()
+        configuration.processPool = WKProcessPool()
 
         // Create the WebView
 //        self.webView = WKWebView(frame: CGRect.zero, configuration: configuration)
@@ -79,9 +85,8 @@ public class WebViewController:
         }
 
         // If we have a URL and headers, load it into the webview
-        let headers = dict?["headers"] as? [String: String] ?? [:]
         if let url = initialUrl, let requestURL = URL(string: url) {
-            let request = URLRequest(url: requestURL)
+            var request = URLRequest(url: requestURL)
             for (key, value) in headers {
                 request.setValue(value, forHTTPHeaderField: key)
             }

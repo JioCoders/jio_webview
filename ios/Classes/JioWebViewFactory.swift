@@ -9,10 +9,15 @@ public class JioWebviewFactory: NSObject, FlutterPlatformViewFactory {
     }
 
     public func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
-        return NativeWebview(frame: frame, viewId: viewId, viewIdentifier: args, binaryMessenger: messenger)
+        return NativeWebview(
+            frame: frame,
+            viewIdentifier: viewId,
+            arguments: args,
+            binaryMessenger: messenger
+        )
     }
 
-    func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
+    public func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
         return FlutterStandardMessageCodec.sharedInstance()
     }
 }
@@ -24,12 +29,20 @@ public class NativeWebview: NSObject, FlutterPlatformView {
     init(frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, binaryMessenger messenger: FlutterBinaryMessenger) {
         // Extract URL and other params from arguments
         var initialUrl: String? = nil
+        var headers: [String: String] = [:]
         if let arguments = args as? [String: Any] {
             initialUrl = arguments["initialUrl"] as? String
+            headers = arguments["headers"] as? [String: String] ?? [:]
         }
 
         // Initialize the JioWebViewController with the viewId and initial URL
-        self.webViewController = WebViewController(frame: frame, viewId: viewId, binaryMessenger: messenger!, initialUrl: initialUrl)
+        self.webViewController = WebViewController(
+            frame: frame,
+            viewId: viewId,
+            messenger: messenger,
+            initialUrl: initialUrl,
+            headers: headers
+        )
         super.init()
     }
 

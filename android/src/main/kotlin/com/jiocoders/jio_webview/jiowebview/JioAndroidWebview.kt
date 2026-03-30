@@ -41,7 +41,7 @@ class JioAndroidWebview(
 //        setWebViewProxy(webView, "192.168.1.1", 8080) // Set Proxy
 
         // Load the initial URL and headers if provided
-        val headers = params?.get("headers") as? Map<String, String> ?: emptyMap()
+        val headers = creationParams?.get("headers") as? Map<String, String> ?: emptyMap()
         val initialUrl = creationParams?.get("initialUrl") as? String
         initialUrl?.let {
             webView.loadUrl(it, headers)

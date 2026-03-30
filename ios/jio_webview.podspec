@@ -16,8 +16,8 @@ Flutter plugin to display the native webView using native bridge method channel 
   s.author           = { 'Jiocoders' => 'jiocoders@gmail.com' }
 #   s.source           = { :path => '.' }
   s.source           = { :git => 'https://github.com/jiocoders/jio_webview.git', :tag => s.version.to_s }
-#   s.source_files = 'Classes/**/*'
-  s.source_files  = 'lib/**/*.{dart}'
+  s.source_files = 'Classes/**/*'
+#   s.source_files  = 'lib/**/*.{dart}'
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
 
